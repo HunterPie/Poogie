@@ -3,6 +3,7 @@ package http
 import (
 	"net/http"
 
+	"github.com/Haato3o/poogie/core/middlewares"
 	"github.com/Haato3o/poogie/core/tracing"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -15,7 +16,7 @@ type Endpoint interface {
 type HttpServer struct {
 	server  *http.Server
 	Router  *gin.Engine
-	tracing *tracing.TracingEngine
+	tracing tracing.ITracingEngine
 }
 
 func New(address string) *HttpServer {
@@ -23,6 +24,7 @@ func New(address string) *HttpServer {
 
 	router := gin.New()
 	router.Use(cors.Default())
+	router.Use(middlewares.LoggingMiddleware)
 
 	server := &http.Server{
 		Addr:    address,

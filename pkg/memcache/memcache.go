@@ -13,7 +13,7 @@ type MemoryCache struct {
 	cache *gocache.Cache
 }
 
-func New(timeout time.Duration) cache.Cache {
+func New(timeout time.Duration) cache.ICache {
 	cache := gocache.New(timeout, DEFAULT_DELETE_INTERVAL)
 	return &MemoryCache{cache}
 }

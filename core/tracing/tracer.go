@@ -2,10 +2,10 @@ package tracing
 
 import "context"
 
-type TracingEngine interface {
-	FromContext(ctx *context.Context) *TracingTransaction
+type ITracingEngine interface {
+	FromContext(ctx context.Context) ITracingTransaction
 }
 
-type TracingTransaction interface {
+type ITracingTransaction interface {
 	AddProperty(key string, value interface{})
 }

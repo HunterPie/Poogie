@@ -23,13 +23,13 @@ const (
 
 type S3Bucket struct {
 	connection *s3.S3
-	cache      cache.Cache
+	cache      cache.ICache
 	bucket     string
 	prefix     string
 	fileType   string
 }
 
-func New(configuration *config.ApiConfiguration, prefix, fileType string) bucket.FileBucket {
+func New(configuration *config.ApiConfiguration, prefix, fileType string) bucket.IBucket {
 	session, err := session.NewSession(&aws.Config{
 		Region: aws.String(AWS_REGION),
 		Credentials: credentials.NewStaticCredentials(

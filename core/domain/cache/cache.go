@@ -1,6 +1,6 @@
 package cache
 
-type Cache interface {
+type ICache interface {
 	Get(key string) (interface{}, bool)
 	Set(key string, value interface{})
 }

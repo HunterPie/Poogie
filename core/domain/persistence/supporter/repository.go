@@ -2,7 +2,7 @@ package supporter
 
 import "context"
 
-type SupporterRepository interface {
+type ISupporterRepository interface {
 	FindBy(ctx context.Context, email string) SupporterModel
 	Exists(ctx context.Context, email string) bool
 	RevokeBy(ctx context.Context, email string) bool

@@ -1,6 +1,6 @@
 package bucket
 
-type FileBucket interface {
+type IBucket interface {
 	FindMostRecent() (string, error)
 	FindBy(name string) ([]byte, error)
 }
