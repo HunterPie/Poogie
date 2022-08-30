@@ -24,7 +24,7 @@ func New(address string) *HttpServer {
 
 	router := gin.New()
 	router.Use(cors.Default())
-	router.Use(middlewares.LoggingMiddleware)
+	router.Use(middlewares.TransactionMiddleware)
 
 	server := &http.Server{
 		Addr:    address,

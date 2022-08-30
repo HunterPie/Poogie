@@ -2,6 +2,7 @@ package aws
 
 import (
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/Haato3o/poogie/core/config"
@@ -56,7 +57,7 @@ func New(configuration *config.ApiConfiguration, prefix, fileType string) bucket
 	}
 }
 
-// FindBy implements bucket.FileBucket
+// FindBy implements bucket.IBucket
 func (b *S3Bucket) FindBy(name string) ([]byte, error) {
 	file, hasCachedFile := b.cache.Get(name)
 
@@ -86,6 +87,7 @@ func (b *S3Bucket) FindBy(name string) ([]byte, error) {
 	return buffer.Bytes(), nil
 }
 
+// FindMostRecent implements bucket.IBucket
 func (b *S3Bucket) FindMostRecent() (string, error) {
 	name, hasCachedName := b.cache.Get(MOST_RECENT_KEY)
 
@@ -112,7 +114,18 @@ func (b *S3Bucket) FindMostRecent() (string, error) {
 		}
 	}
 
-	b.cache.Set(MOST_RECENT_KEY, *mostRecent.Key)
+	if mostRecent == nil {
+		return "", errors.New("no files found")
+	}
 
-	return *mostRecent.Key, nil
+	fileName := removeSuffixAndPrefix(*mostRecent.Key, b.fileType, b.prefix)
+
+	b.cache.Set(MOST_RECENT_KEY, fileName)
+
+	return fileName, nil
+}
+
+func removeSuffixAndPrefix(str, suffix, prefix string) string {
+	str = strings.Replace(str, suffix, "", 1)
+	return strings.Replace(str, prefix, "", 1)
 }
