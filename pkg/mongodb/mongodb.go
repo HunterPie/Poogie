@@ -4,6 +4,8 @@ import (
 	"context"
 	"time"
 
+	"github.com/Haato3o/poogie/core/domain/persistence/database"
+	"github.com/Haato3o/poogie/core/domain/persistence/supporter"
 	"github.com/newrelic/go-agent/v3/integrations/nrmongo"
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -11,7 +13,31 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
-func New(uri, database string, isTracingEnabled bool) (*mongo.Client, error) {
+type MongoDatabase struct {
+	*mongo.Client
+	*mongo.Database
+}
+
+// GetSupporterRepository implements database.IDatabase
+func (m *MongoDatabase) GetSupporterRepository() supporter.ISupporterRepository {
+	return NewSupporterRepository(m.Database)
+}
+
+// IsHealthy implements database.IDatabase
+func (m *MongoDatabase) IsHealthy(ctx context.Context) (bool, error) {
+	context, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+
+	err := m.Ping(context, readpref.Primary())
+
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+func New(uri, database string, isTracingEnabled bool) (database.IDatabase, error) {
 	config := options.Client().ApplyURI(uri)
 
 	if isTracingEnabled {
@@ -31,5 +57,5 @@ func New(uri, database string, isTracingEnabled bool) (*mongo.Client, error) {
 		return nil, errors.Wrap(err, "timeout: could not connect to database")
 	}
 
-	return client, nil
+	return &MongoDatabase{client, client.Database(database)}, nil
 }
