@@ -3,7 +3,7 @@ package health
 import (
 	"context"
 
-	"github.com/Haato3o/poogie/core/domain/persistence/database"
+	"github.com/Haato3o/poogie/core/persistence/database"
 )
 
 type HealthService struct {

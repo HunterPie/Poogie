@@ -39,3 +39,7 @@ func (s *SupporterService) CreateNewSupporter(ctx context.Context, email string)
 
 	return model
 }
+
+func (s *SupporterService) ExistsSupporterByToken(ctx context.Context, token string) bool {
+	return s.db.ExistsToken(ctx, token)
+}

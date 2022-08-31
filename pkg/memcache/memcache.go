@@ -3,7 +3,7 @@ package memcache
 import (
 	"time"
 
-	"github.com/Haato3o/poogie/core/domain/cache"
+	"github.com/Haato3o/poogie/core/cache"
 	gocache "github.com/patrickmn/go-cache"
 )
 

@@ -2,8 +2,8 @@ package server
 
 import (
 	"github.com/Haato3o/poogie/core/config"
-	"github.com/Haato3o/poogie/core/domain/persistence/database"
 	"github.com/Haato3o/poogie/core/middlewares"
+	"github.com/Haato3o/poogie/core/persistence/database"
 	"github.com/Haato3o/poogie/pkg/http"
 	"github.com/Haato3o/poogie/pkg/mongodb"
 )

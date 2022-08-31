@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/Haato3o/poogie/core/domain/persistence/database"
-	"github.com/Haato3o/poogie/core/domain/persistence/supporter"
+	"github.com/Haato3o/poogie/core/persistence/database"
+	"github.com/Haato3o/poogie/core/persistence/supporter"
 	"github.com/newrelic/go-agent/v3/integrations/nrmongo"
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/mongo"

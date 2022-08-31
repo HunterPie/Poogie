@@ -3,7 +3,7 @@ package mongodb
 import (
 	"context"
 
-	"github.com/Haato3o/poogie/core/domain/persistence/supporter"
+	"github.com/Haato3o/poogie/core/persistence/supporter"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )

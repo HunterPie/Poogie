@@ -5,9 +5,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Haato3o/poogie/core/cache"
 	"github.com/Haato3o/poogie/core/config"
-	"github.com/Haato3o/poogie/core/domain/cache"
-	"github.com/Haato3o/poogie/core/domain/persistence/bucket"
+	"github.com/Haato3o/poogie/core/persistence/bucket"
 	"github.com/Haato3o/poogie/pkg/memcache"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"

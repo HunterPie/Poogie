@@ -3,7 +3,7 @@ package database
 import (
 	"context"
 
-	"github.com/Haato3o/poogie/core/domain/persistence/supporter"
+	"github.com/Haato3o/poogie/core/persistence/supporter"
 )
 
 type IDatabase interface {
