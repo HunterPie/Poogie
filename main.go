@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/Haato3o/poogie/core/config"
 	"github.com/Haato3o/poogie/core/features/health"
 	"github.com/Haato3o/poogie/pkg/server"
@@ -36,8 +34,6 @@ func groupByVersions(services []server.IRegisterableService) map[int][]server.IR
 	return m
 }
 
-func loadAllServices()
-
 func main() {
 	godotenv.Load()
 	_ = envconfig.Process("POOGIE", &apiConfig)
@@ -50,21 +46,8 @@ func main() {
 		panic("failed to instantiate new server")
 	}
 
-	for version, services := range groupByVersions(getServices()) {
-		var group string = ""
-		if version > server.NO_VERSION {
-			group = fmt.Sprintf("v%d", version)
-		}
+	groupedServices := groupByVersions(getServices())
+	instance.Load(groupedServices)
 
-		router := instance.HttpServer.Router.Group(group)
-
-		for _, service := range services {
-			err := service.Load(router, instance)
-
-			if err != nil {
-				panic("failed to load handler")
-			}
-		}
-	}
-
+	instance.Start()
 }

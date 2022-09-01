@@ -9,6 +9,10 @@ import (
 
 type TokenService struct{}
 
+func NewTokenService() TokenService {
+	return TokenService{}
+}
+
 func (s *TokenService) Generate() string {
 	random := uuid.NewString()
 	hash := sha256.Sum256([]byte(random))

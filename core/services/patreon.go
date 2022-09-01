@@ -1,7 +1,10 @@
 package services
 
 import (
+	"crypto/hmac"
+	"crypto/md5"
 	"errors"
+	"fmt"
 
 	"github.com/Haato3o/poogie/core/utils"
 	"github.com/gin-gonic/gin"
@@ -21,7 +24,13 @@ type PatreonWebhookModel struct {
 	Data PatreonAttributeModel `json:"data" binding:"required"`
 }
 
-type PatreonService struct{}
+type PatreonService struct {
+	secret string
+}
+
+func NewPatreonService(secret string) *PatreonService {
+	return &PatreonService{secret}
+}
 
 func (s *PatreonService) GetSupporterWebhook(ctx *gin.Context) (PatreonWebhookModel, error) {
 	var body PatreonWebhookModel
@@ -33,4 +42,12 @@ func (s *PatreonService) GetSupporterWebhook(ctx *gin.Context) (PatreonWebhookMo
 	}
 
 	return body, nil
+}
+
+func (s *PatreonService) IsWebhookValid(signature string, body []byte) bool {
+	mac := hmac.New(md5.New, []byte(s.secret))
+	mac.Write(body)
+	stringfied := fmt.Sprintf("%x", mac.Sum(nil))
+
+	return signature == stringfied
 }

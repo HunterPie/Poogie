@@ -13,7 +13,7 @@ const (
 )
 
 type SupporterService struct {
-	db           supporter.ISupporterRepository
+	repository   supporter.ISupporterRepository
 	emailService email.IEmailService
 	tokenService services.TokenService
 }
@@ -21,7 +21,7 @@ type SupporterService struct {
 func (s *SupporterService) CreateNewSupporter(ctx context.Context, email string) supporter.SupporterModel {
 	token := s.tokenService.Generate()
 
-	model := s.db.Insert(ctx, supporter.SupporterModel{
+	model := s.repository.Insert(ctx, supporter.SupporterModel{
 		Email:    email,
 		Token:    token,
 		IsActive: true,
@@ -40,6 +40,10 @@ func (s *SupporterService) CreateNewSupporter(ctx context.Context, email string)
 	return model
 }
 
+func (s *SupporterService) RevokeExistingSupporter(ctx context.Context, email string) supporter.SupporterModel {
+	return s.repository.RevokeBy(ctx, email)
+}
+
 func (s *SupporterService) ExistsSupporterByToken(ctx context.Context, token string) bool {
-	return s.db.ExistsToken(ctx, token)
+	return s.repository.ExistsToken(ctx, token)
 }

@@ -1,6 +1,8 @@
 package server
 
 import (
+	"fmt"
+
 	"github.com/Haato3o/poogie/core/config"
 	"github.com/Haato3o/poogie/core/middlewares"
 	"github.com/Haato3o/poogie/core/persistence/database"
@@ -43,15 +45,24 @@ func (s *Server) Stop() {
 	s.quit <- struct{}{}
 }
 
-func (s *Server) Load(group string, services ...IRegisterableService) error {
-	router := s.HttpServer.Router.Group(group)
-	router.Use(middlewares.TransactionMiddleware)
+func (s *Server) Load(services map[int][]IRegisterableService) error {
+	for version, services := range services {
+		var group string = ""
+		if version > NO_VERSION {
+			group = fmt.Sprintf("v%d", version)
+		}
 
-	for _, svc := range services {
-		err := svc.Load(router, s)
+		router := s.HttpServer.Router.Group(group)
 
-		if err != nil {
-			return err
+		// Setup middlewares here
+		router.Use(middlewares.TransactionMiddleware)
+
+		for _, service := range services {
+			err := service.Load(router, s)
+
+			if err != nil {
+				return err
+			}
 		}
 	}
 
