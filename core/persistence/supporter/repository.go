@@ -7,5 +7,6 @@ type ISupporterRepository interface {
 	ExistsSupporter(ctx context.Context, email string) bool
 	ExistsToken(ctx context.Context, token string) bool
 	RevokeBy(ctx context.Context, email string) SupporterModel
+	RenewBy(ctx context.Context, email string) SupporterModel
 	Insert(ctx context.Context, supporter SupporterModel) SupporterModel
 }

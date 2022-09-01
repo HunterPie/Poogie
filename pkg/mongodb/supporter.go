@@ -14,6 +14,24 @@ type SupporterMongoRepository struct {
 	*mongo.Collection
 }
 
+// RenewBy implements supporter.ISupporterRepository
+func (r *SupporterMongoRepository) RenewBy(ctx context.Context, email string) supporter.SupporterModel {
+	query := bson.M{
+		"email": email,
+	}
+
+	update := bson.M{
+		"$set": bson.M{
+			"is_active": true,
+		},
+	}
+
+	var document supporter.SupporterModel
+	r.FindOneAndUpdate(ctx, query, update).Decode(&document)
+
+	return document
+}
+
 func NewSupporterRepository(db *mongo.Database) *SupporterMongoRepository {
 	return &SupporterMongoRepository{db.Collection(SUPPORTER_COLLECTION_NAME)}
 }
@@ -33,7 +51,8 @@ func (r *SupporterMongoRepository) ExistsSupporter(ctx context.Context, email st
 // ExistsToken implements supporter.ISupporterRepository
 func (r *SupporterMongoRepository) ExistsToken(ctx context.Context, token string) bool {
 	query := bson.M{
-		"token": token,
+		"token":     token,
+		"is_active": true,
 	}
 
 	var document supporter.SupporterModel

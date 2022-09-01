@@ -19,13 +19,19 @@ type SupporterService struct {
 }
 
 func (s *SupporterService) CreateNewSupporter(ctx context.Context, email string) supporter.SupporterModel {
-	token := s.tokenService.Generate()
 
-	model := s.repository.Insert(ctx, supporter.SupporterModel{
-		Email:    email,
-		Token:    token,
-		IsActive: true,
-	})
+	var model supporter.SupporterModel
+
+	if !s.repository.ExistsSupporter(ctx, email) {
+		token := s.tokenService.Generate()
+		model = s.repository.Insert(ctx, supporter.SupporterModel{
+			Email:    email,
+			Token:    token,
+			IsActive: true,
+		})
+	} else {
+		model = s.repository.RenewBy(ctx, email)
+	}
 
 	s.emailService.Send(
 		SUPPORTER_EMAIL_TITLE,
@@ -34,7 +40,7 @@ func (s *SupporterService) CreateNewSupporter(ctx context.Context, email string)
 		struct {
 			Token string
 		}{
-			Token: token,
+			Token: model.Token,
 		})
 
 	return model
