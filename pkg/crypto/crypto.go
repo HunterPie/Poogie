@@ -6,11 +6,22 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+
+	"github.com/Haato3o/poogie/core/crypto"
+)
+
+var (
+	ErrInvalidContent        = errors.New("invalid content data to be decrypted")
+	ErrInvalidEncryptedValue = errors.New("failed to decrypt value")
 )
 
 type AESCryptoService struct {
 	key  []byte
 	salt []byte
+}
+
+func NewCryptoService(key, salt string) crypto.ICryptographyService {
+	return &AESCryptoService{[]byte(key), []byte(salt)}
 }
 
 func (s *AESCryptoService) Encrypt(content string) string {
@@ -27,7 +38,7 @@ func (s *AESCryptoService) Decrypt(content string) (string, error) {
 	bytes, err := hex.DecodeString(content)
 
 	if err != nil {
-		return "", errors.New("invalid content data to be decrypted")
+		return "", ErrInvalidContent
 	}
 
 	block, _ := aes.NewCipher(s.key)
@@ -36,7 +47,7 @@ func (s *AESCryptoService) Decrypt(content string) (string, error) {
 	decrypted, err := gcm.Open(nil, s.salt, bytes, nil)
 
 	if err != nil {
-		return "", errors.New("failed to decrypt value")
+		return "", ErrInvalidEncryptedValue
 	}
 
 	return string(decrypted), nil
