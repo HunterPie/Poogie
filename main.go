@@ -3,6 +3,8 @@ package main
 import (
 	"github.com/Haato3o/poogie/core/config"
 	"github.com/Haato3o/poogie/core/features/health"
+	"github.com/Haato3o/poogie/core/features/supporter"
+	"github.com/Haato3o/poogie/core/features/version"
 	"github.com/Haato3o/poogie/pkg/server"
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
@@ -13,6 +15,8 @@ var apiConfig config.ApiConfiguration
 func getServices() []server.IRegisterableService {
 	return []server.IRegisterableService{
 		health.New(),
+		version.New(),
+		supporter.New(),
 	}
 }
 

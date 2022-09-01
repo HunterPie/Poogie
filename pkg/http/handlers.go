@@ -25,3 +25,7 @@ func InternalServerError(c *gin.Context) {
 func Ok[T any](c *gin.Context, body T) {
 	c.JSON(http.StatusOK, body)
 }
+
+func OkZip(c *gin.Context, content []byte) {
+	c.Data(http.StatusOK, "application/zip", content)
+}
