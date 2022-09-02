@@ -6,6 +6,9 @@ all: build
 
 install: go-get
 
+run:
+	go run main.go
+
 build:
 	go mod tidy && \
 	GOOS=linux GOARCH=amd64 go build -o build/$(BIN_NAME) -a -v -tags musl

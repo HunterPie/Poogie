@@ -1,8 +1,8 @@
 package supporter
 
 type SupporterHeaderModel struct {
-	ClientId       string `json:"X-Client-Id"`
-	SupporterToken string `json:"X-Supporter-Token"`
+	ClientId       string `header:"X-Client-Id"`
+	SupporterToken string `header:"X-Supporter-Token"`
 }
 
 type SupporterResponse struct {

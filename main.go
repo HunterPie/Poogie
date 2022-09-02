@@ -1,10 +1,15 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/Haato3o/poogie/core/config"
 	"github.com/Haato3o/poogie/core/features/health"
+	"github.com/Haato3o/poogie/core/features/report"
+	"github.com/Haato3o/poogie/core/features/session"
 	"github.com/Haato3o/poogie/core/features/supporter"
 	"github.com/Haato3o/poogie/core/features/version"
+	"github.com/Haato3o/poogie/pkg/log"
 	"github.com/Haato3o/poogie/pkg/server"
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
@@ -17,11 +22,13 @@ func getServices() []server.IRegisterableService {
 		health.New(),
 		version.New(),
 		supporter.New(),
+		report.New(),
+		session.New(),
 	}
 }
 
 func groupByVersions(services []server.IRegisterableService) map[int][]server.IRegisterableService {
-	m := make(map[int][]server.IRegisterableService)
+	m := make(map[int][]server.IRegisterableService, 0)
 
 	for _, svc := range services {
 		version := svc.GetVersion()
@@ -29,7 +36,7 @@ func groupByVersions(services []server.IRegisterableService) map[int][]server.IR
 		_, ok := m[version]
 
 		if !ok {
-			m[version] = make([]server.IRegisterableService, 1)
+			m[version] = make([]server.IRegisterableService, 0)
 		}
 
 		m[version] = append(m[version], svc)
@@ -51,7 +58,13 @@ func main() {
 	}
 
 	groupedServices := groupByVersions(getServices())
-	instance.Load(groupedServices)
+	err = instance.Load(groupedServices)
+
+	if err != nil {
+		panic(err)
+	}
+
+	log.Info(fmt.Sprintf("Starting up server at %s", apiConfig.HttpAddress))
 
 	instance.Start()
 }

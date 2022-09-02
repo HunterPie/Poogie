@@ -26,7 +26,7 @@ func DeserializeHeaders[T any](ctx *gin.Context, header *T, validators ...func(*
 
 	}
 
-	return err != nil
+	return err == nil
 }
 
 func DeserializeBody[T any](ctx *gin.Context, body *T, validators ...func(*T) bool) bool {
@@ -38,5 +38,5 @@ func DeserializeBody[T any](ctx *gin.Context, body *T, validators ...func(*T) bo
 		}
 	}
 
-	return err != nil
+	return err == nil
 }

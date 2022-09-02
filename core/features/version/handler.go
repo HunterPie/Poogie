@@ -6,8 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const SCOPE = "/version"
-
 type VersionHandler struct{}
 
 // GetName implements server.IRegisterableService
@@ -32,16 +30,12 @@ func (*VersionHandler) Load(router *gin.RouterGroup, server *server.Server) erro
 		service: &service,
 	}
 
-	router.GET(SCOPE, controller.GetLatestVersion)
-	router.GET(subScope("/:version"), controller.GetBinaryByVersion)
+	router.GET("/version", controller.GetLatestVersion)
+	router.GET("/version/:version", controller.GetBinaryByVersion)
 
 	return nil
 }
 
 func New() server.IRegisterableService {
 	return &VersionHandler{}
-}
-
-func subScope(path string) string {
-	return SCOPE + path
 }

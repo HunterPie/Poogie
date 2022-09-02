@@ -61,7 +61,7 @@ func (c *SupporterController) VerifySupporter(ctx *gin.Context) {
 	var supporterHeader SupporterHeaderModel
 
 	if !utils.DeserializeHeaders(ctx, &supporterHeader, func(header *SupporterHeaderModel) bool {
-		return header.SupporterToken != ""
+		return header.SupporterToken != "" && header.ClientId != ""
 	}) {
 		http.BadRequest(ctx)
 		return

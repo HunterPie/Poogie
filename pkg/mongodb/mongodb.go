@@ -25,7 +25,7 @@ func (m *MongoDatabase) GetAccountRepository() account.IAccountRepository {
 }
 
 // GetSessionRepository implements database.IDatabase
-func (*MongoDatabase) GetSessionRepository() account.IAccountSessionRepository {
+func (m *MongoDatabase) GetSessionRepository() account.IAccountSessionRepository {
 	return NewSessionRepository(m.Database)
 }
 

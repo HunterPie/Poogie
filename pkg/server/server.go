@@ -28,6 +28,10 @@ func New(config *config.ApiConfiguration) (*Server, error) {
 		return nil, err
 	}
 
+	if isMonitoringEnabled {
+
+	}
+
 	return &Server{
 		Config:     config,
 		HttpServer: server,
@@ -46,7 +50,7 @@ func (s *Server) Stop() {
 }
 
 func (s *Server) Load(services map[int][]IRegisterableService) error {
-	for version, services := range services {
+	for version, servicesList := range services {
 		var group string = ""
 		if version > NO_VERSION {
 			group = fmt.Sprintf("v%d", version)
@@ -56,8 +60,9 @@ func (s *Server) Load(services map[int][]IRegisterableService) error {
 
 		// Setup middlewares here
 		router.Use(middlewares.TransactionMiddleware)
+		router.Use(middlewares.LogRequest)
 
-		for _, service := range services {
+		for _, service := range servicesList {
 			err := service.Load(router, s)
 
 			if err != nil {

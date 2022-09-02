@@ -7,8 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const SCOPE = "/supporter"
-
 type SupporterHandler struct{}
 
 // GetName implements server.IRegisterableService
@@ -33,16 +31,12 @@ func (h *SupporterHandler) Load(router *gin.RouterGroup, server *server.Server) 
 		patreonService: services.NewPatreonService(server.Config.PatreonWebhookSecret),
 	}
 
-	router.GET(subScope("/verify"), controller.VerifySupporter)
-	router.POST(subScope("/webhook"), controller.HandleSupporterWebhook)
+	router.GET("/supporter/verify", controller.VerifySupporter)
+	router.POST("/supporter/webhook", controller.HandleSupporterWebhook)
 
 	return nil
 }
 
 func New() server.IRegisterableService {
 	return &SupporterHandler{}
-}
-
-func subScope(path string) string {
-	return SCOPE + path
 }
