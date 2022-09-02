@@ -5,7 +5,15 @@ import (
 )
 
 func ExtractSupporterToken(ctx *gin.Context) string {
-	return ctx.Request.Header.Get("X-Supporter-Token")
+	return ctx.GetHeader("X-Supporter-Token")
+}
+
+func ExtractClientId(ctx *gin.Context) string {
+	return ctx.GetHeader("X-Client-Id")
+}
+
+func ExtractUserId(ctx *gin.Context) string {
+	return ctx.GetHeader("X-Transformed-User-Id")
 }
 
 func DeserializeHeaders[T any](ctx *gin.Context, header *T, validators ...func(*T) bool) bool {

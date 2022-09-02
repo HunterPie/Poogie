@@ -14,4 +14,7 @@ type ApiConfiguration struct {
 	PoogieEmail          string `envconfig:"POOGIE_EMAIL"`
 	PoogiePassword       string `envconfig:"POOGIE_PASSWORD"`
 	PatreonWebhookSecret string `envconfig:"PATREON_WEBHOOK_SECRET"`
+	HashSalt             string `envconfig:"HASH_SALT"`
+	CryptoSalt           string `envconfig:"AES_CRYPTO_SALT"`
+	CryptoKey            string `envconfig:"AES_CRYPTO_KEY"`
 }

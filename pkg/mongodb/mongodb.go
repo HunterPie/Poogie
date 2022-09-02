@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/Haato3o/poogie/core/persistence/account"
 	"github.com/Haato3o/poogie/core/persistence/database"
 	"github.com/Haato3o/poogie/core/persistence/supporter"
 	"github.com/newrelic/go-agent/v3/integrations/nrmongo"
@@ -16,6 +17,16 @@ import (
 type MongoDatabase struct {
 	*mongo.Client
 	*mongo.Database
+}
+
+// GetAccountRepository implements database.IDatabase
+func (m *MongoDatabase) GetAccountRepository() account.IAccountRepository {
+	return NewAccountRepository(m.Database)
+}
+
+// GetSessionRepository implements database.IDatabase
+func (*MongoDatabase) GetSessionRepository() account.IAccountSessionRepository {
+	return NewSessionRepository(m.Database)
 }
 
 // GetSupporterRepository implements database.IDatabase
