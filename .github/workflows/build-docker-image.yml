@@ -1,0 +1,31 @@
+name: Build Docker Image
+
+on:
+  push:
+    branches: [ main ]
+
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Build Image
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Builds container image
+      run: docker build -t registry.digitalocean.com/poogie/poogie-api:$GITHUB_RUN_NUMBER .
+
+    - name: Install doctl
+      uses: digitalocean/action-doctl@v2
+      with:
+        token: ${{ secrets.REGISTRY_ACCESS_TOKEN }}
+
+    - name: Login to DigitalOcean
+      run: doctl registry login --expiry-seconds 600
+
+    - name: Upload image to registry
+      run: docker push registry.digitalocean.com/poogie/poogie-api$GITHUB_RUN_NUMBER
