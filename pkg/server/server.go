@@ -14,22 +14,16 @@ type Server struct {
 	Config     *config.ApiConfiguration
 	HttpServer *http.HttpServer
 	Database   database.IDatabase
-
-	quit chan struct{}
+	quit       chan struct{}
 }
 
 func New(config *config.ApiConfiguration) (*Server, error) {
-	server := http.New(config.HttpAddress)
-
 	isMonitoringEnabled := config.NewRelicLicenseKey != ""
+	server := http.New(config, isMonitoringEnabled)
 	database, err := mongodb.New(config.DatabaseUri, config.DatabaseName, isMonitoringEnabled)
 
 	if err != nil {
 		return nil, err
-	}
-
-	if isMonitoringEnabled {
-
 	}
 
 	return &Server{

@@ -49,8 +49,6 @@ func main() {
 	godotenv.Load()
 	_ = envconfig.Process("POOGIE", &apiConfig)
 
-	// TODO: Add metrics
-
 	instance, err := server.New(&apiConfig)
 
 	if err != nil {

@@ -24,12 +24,14 @@ type SupporterController struct {
 }
 
 func (c *SupporterController) HandleSupporterWebhook(ctx *gin.Context) {
+	txn := tracing.FromContext(ctx)
 	body, err := io.ReadAll(ctx.Request.Body)
 	ctx.Request.Body = io.NopCloser(bytes.NewBuffer(body))
 
 	signature := ctx.Request.Header.Get("X-Patreon-Signature")
 
 	if err != nil || !c.patreonService.IsWebhookValid(signature, body) {
+		txn.AddProperty("error", "INVALID_PAYLOAD")
 		http.BadRequest(ctx)
 		return
 	}
