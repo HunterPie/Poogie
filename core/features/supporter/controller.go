@@ -31,7 +31,7 @@ func (c *SupporterController) HandleSupporterWebhook(ctx *gin.Context) {
 	signature := ctx.Request.Header.Get("X-Patreon-Signature")
 
 	if err != nil || !c.patreonService.IsWebhookValid(signature, body) {
-		txn.AddProperty("error", "INVALID_PAYLOAD")
+		txn.AddProperty("error_type", "INVALID_PAYLOAD_SIGNATURE")
 		http.BadRequest(ctx)
 		return
 	}
@@ -39,6 +39,7 @@ func (c *SupporterController) HandleSupporterWebhook(ctx *gin.Context) {
 	webhook, err := c.patreonService.GetSupporterWebhook(ctx)
 
 	if err != nil {
+		txn.AddProperty("error_type", "INVALID_WEBHOOK_FORMAT")
 		http.BadRequest(ctx)
 		return
 	}
@@ -48,6 +49,7 @@ func (c *SupporterController) HandleSupporterWebhook(ctx *gin.Context) {
 	model, err := c.handleSupporterWebhookByType(ctx, event, webhook)
 
 	if err != nil {
+		txn.AddProperty("error_type", "INVALID_WEBHOOK_EVENT")
 		http.BadRequest(ctx)
 		return
 	}
