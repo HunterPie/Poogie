@@ -35,6 +35,8 @@ func New(config *config.ApiConfiguration, isMonitoringEnabled bool) *HttpServer 
 			config.NewRelicLicenseKey,
 			!config.Debug,
 		)
+
+		tracer.SetupTracingMiddleware(router)
 	}
 
 	server := &http.Server{
