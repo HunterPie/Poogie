@@ -31,8 +31,11 @@ func (*SessionHandler) GetVersion() int {
 // Load implements server.IRegisterableService
 func (*SessionHandler) Load(router *gin.RouterGroup, server *server.Server) error {
 
+	// DEPRECATED ROUTES
 	router.GET("/session", func(ctx *gin.Context) { http.Ok(ctx, sessionResponse) })
 	router.POST("/session/end", func(ctx *gin.Context) { http.Ok(ctx, sessionResponse) })
+
+	router.POST("/login")
 
 	return nil
 }

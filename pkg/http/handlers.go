@@ -22,6 +22,10 @@ func InternalServerError(c *gin.Context) {
 	c.JSON(http.StatusInternalServerError, gin.H{"error": INTERNAL_ERROR_MESSAGE})
 }
 
+func Conflict(c *gin.Context, message string) {
+	c.JSON(http.StatusConflict, gin.H{"error": message})
+}
+
 func Ok[T any](c *gin.Context, body T) {
 	c.JSON(http.StatusOK, body)
 }

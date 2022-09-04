@@ -34,7 +34,7 @@ func (*AccountHandler) Load(router *gin.RouterGroup, server *server.Server) erro
 
 	userRouter := router.Group("/user")
 
-	authMiddleware := middlewares.NewUserTransformMiddleware(server.Database)
+	authMiddleware := middlewares.NewUserTransformMiddleware()
 
 	userRouter.Use(authMiddleware.TokenToUserIdTransform)
 

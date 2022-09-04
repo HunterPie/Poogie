@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/Haato3o/poogie/core/config"
+	"github.com/Haato3o/poogie/core/features/account"
 	"github.com/Haato3o/poogie/core/features/health"
 	"github.com/Haato3o/poogie/core/features/report"
 	"github.com/Haato3o/poogie/core/features/session"
@@ -24,6 +25,7 @@ func getServices() []server.IRegisterableService {
 		supporter.New(),
 		report.New(),
 		session.New(),
+		account.New(),
 	}
 }
 

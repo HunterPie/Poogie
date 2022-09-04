@@ -3,8 +3,7 @@ package middlewares
 import (
 	"net/http"
 
-	"github.com/Haato3o/poogie/core/persistence/account"
-	"github.com/Haato3o/poogie/core/persistence/database"
+	"github.com/Haato3o/poogie/core/auth"
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,17 +13,15 @@ const (
 )
 
 type UserTransformMiddleware struct {
-	repository account.IAccountSessionRepository
+	service auth.IAuthService
 }
 
 type UnauthorizedResponse struct {
 	Error string `json:"error"`
 }
 
-func NewUserTransformMiddleware(db database.IDatabase) *UserTransformMiddleware {
-	return &UserTransformMiddleware{
-		repository: db.GetSessionRepository(),
-	}
+func NewUserTransformMiddleware(service auth.IAuthService) *UserTransformMiddleware {
+	return &UserTransformMiddleware{service}
 }
 
 func (m *UserTransformMiddleware) TokenToUserIdTransform(ctx *gin.Context) {
@@ -39,15 +36,25 @@ func (m *UserTransformMiddleware) TokenToUserIdTransform(ctx *gin.Context) {
 		return
 	}
 
-	userId, err := m.repository.GetUserIdBy(ctx, token)
+	isValid := m.service.IsValid(token)
+
+	if !isValid {
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, UnauthorizedResponse{
+			Error: "Invalid session token",
+		})
+		return
+	}
+
+	user, err := m.service.Parse(token)
 
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusUnauthorized, UnauthorizedResponse{
 			Error: "Invalid session token",
 		})
+		return
 	}
 
-	ctx.Request.Header.Add(TRANSFORMED_HEADER, userId)
+	ctx.Request.Header.Add(TRANSFORMED_HEADER, user.UserId)
 
 	ctx.Next()
 }

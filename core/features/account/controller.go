@@ -23,7 +23,10 @@ func (c *AccountController) CreateNewAccountHandler(ctx *gin.Context) {
 
 	account, err := c.service.CreateNewAccount(ctx, request, clientId)
 
-	if err != nil {
+	if err == ErrAccountWithEmailAlreadyExists || err == ErrUsernameTaken {
+		http.Conflict(ctx, err.Error())
+		return
+	} else if err != nil {
 		http.InternalServerError(ctx)
 		return
 	}

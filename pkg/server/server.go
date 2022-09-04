@@ -7,6 +7,7 @@ import (
 	"github.com/Haato3o/poogie/core/middlewares"
 	"github.com/Haato3o/poogie/core/persistence/database"
 	"github.com/Haato3o/poogie/pkg/http"
+	"github.com/Haato3o/poogie/pkg/log"
 	"github.com/Haato3o/poogie/pkg/mongodb"
 )
 
@@ -58,6 +59,8 @@ func (s *Server) Load(services map[int][]IRegisterableService) error {
 
 		for _, service := range servicesList {
 			err := service.Load(router, s)
+
+			log.Info(fmt.Sprintf("Registering handler %s:%d", service.GetName(), service.GetVersion()))
 
 			if err != nil {
 				return err

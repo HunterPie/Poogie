@@ -15,6 +15,7 @@ const (
 
 var (
 	ErrAccountWithEmailAlreadyExists = errors.New("there's already an account associated to that email")
+	ErrUsernameTaken                 = errors.New("username is taken")
 	ErrWrongPassword                 = errors.New("invalid password")
 	ErrAccountDoesNotExist           = errors.New("account does not exist")
 )
@@ -36,9 +37,13 @@ func (s *AccountService) CreateNewAccount(
 		return account.AccountModel{}, ErrAccountWithEmailAlreadyExists
 	}
 
+	if s.repository.IsUsernameTaken(ctx, data.Username) {
+		return account.AccountModel{}, ErrUsernameTaken
+	}
+
 	hashedPassword := s.hashService.Hash(data.Password)
 
-	return s.repository.Create(ctx, account.AccountModel{
+	model, err := s.repository.Create(ctx, account.AccountModel{
 		Username:                   data.Username,
 		Password:                   hashedPassword,
 		Email:                      encryptedEmail,
@@ -51,7 +56,13 @@ func (s *AccountService) CreateNewAccount(
 		UpdatedAt:                  time.Now(),
 		LastSessionAt:              time.Now(),
 		IsArchived:                 false,
-	}), nil
+	})
+
+	if err != nil {
+		return model, err
+	}
+
+	return model, nil
 }
 
 func (s *AccountService) GetAccountById(ctx context.Context, userId string) (account.AccountModel, error) {
