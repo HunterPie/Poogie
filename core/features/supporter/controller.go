@@ -59,13 +59,18 @@ func (c *SupporterController) HandleSupporterWebhook(ctx *gin.Context) {
 	})
 }
 
-func (c *SupporterController) VerifySupporter(ctx *gin.Context) {
+func (c *SupporterController) HandleVerifySupporter(ctx *gin.Context) {
 	var supporterHeader SupporterHeaderModel
 
 	if !utils.DeserializeHeaders(ctx, &supporterHeader, func(header *SupporterHeaderModel) bool {
-		return header.SupporterToken != "" && header.ClientId != ""
+		return header.ClientId != ""
 	}) {
 		http.BadRequest(ctx)
+		return
+	}
+
+	if supporterHeader.SupporterToken == "" {
+		http.Ok(ctx, SupporterValidResponse{false})
 		return
 	}
 

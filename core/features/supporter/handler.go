@@ -31,7 +31,7 @@ func (h *SupporterHandler) Load(router *gin.RouterGroup, server *server.Server) 
 		patreonService: services.NewPatreonService(server.Config.PatreonWebhookSecret),
 	}
 
-	router.GET("/supporter/verify", controller.VerifySupporter)
+	router.GET("/supporter/verify", controller.HandleVerifySupporter)
 	router.POST("/supporter/webhook", controller.HandleSupporterWebhook)
 
 	return nil
