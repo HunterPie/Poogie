@@ -29,6 +29,9 @@ func (c *SupporterController) HandleSupporterWebhook(ctx *gin.Context) {
 	ctx.Request.Body = io.NopCloser(bytes.NewBuffer(body))
 
 	signature := ctx.Request.Header.Get("X-Patreon-Signature")
+	event := ctx.Request.Header.Get("X-Patreon-Event")
+
+	txn.AddProperty("event_type", event)
 
 	if err != nil || !c.patreonService.IsWebhookValid(signature, body) {
 		txn.AddProperty("error_type", "INVALID_PAYLOAD_SIGNATURE")
@@ -43,8 +46,6 @@ func (c *SupporterController) HandleSupporterWebhook(ctx *gin.Context) {
 		http.BadRequest(ctx)
 		return
 	}
-
-	event := ctx.Request.Header.Get("X-Patreon-Event")
 
 	model, err := c.handleSupporterWebhookByType(ctx, event, webhook)
 
@@ -84,7 +85,6 @@ func (c *SupporterController) HandleVerifySupporter(ctx *gin.Context) {
 func (c *SupporterController) handleSupporterWebhookByType(ctx context.Context, typ string, webhook services.PatreonWebhookModel) (supporter.SupporterModel, error) {
 	txn := tracing.FromContext(ctx)
 
-	txn.AddProperty("event", typ)
 	txn.AddProperty("email", webhook.Data.Email)
 
 	switch typ {

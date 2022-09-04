@@ -3,8 +3,8 @@ package services
 import (
 	"crypto/hmac"
 	"crypto/md5"
+	"encoding/hex"
 	"errors"
-	"fmt"
 
 	"github.com/Haato3o/poogie/core/utils"
 	"github.com/gin-gonic/gin"
@@ -47,7 +47,7 @@ func (s *PatreonService) GetSupporterWebhook(ctx *gin.Context) (PatreonWebhookMo
 func (s *PatreonService) IsWebhookValid(signature string, body []byte) bool {
 	mac := hmac.New(md5.New, []byte(s.secret))
 	mac.Write(body)
-	stringfied := fmt.Sprintf("%x", mac.Sum(nil))
+	stringfied := hex.EncodeToString(mac.Sum(nil))
 
 	return signature == stringfied
 }
