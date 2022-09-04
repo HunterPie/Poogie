@@ -10,18 +10,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type PatreonAttributeModel struct {
+type PatreonAttributesModel struct {
 	Email string `json:"email" binding:"required"`
 }
 
 type PatreonDataWebhookModel struct {
-	Attributes PatreonAttributeModel `json:"attributes" binding:"required"`
-	Id         string                `json:"id"`
-	Type       string                `json:"type"`
+	Attributes PatreonAttributesModel `json:"attributes" binding:"required"`
 }
 
 type PatreonWebhookModel struct {
-	Data PatreonAttributeModel `json:"data" binding:"required"`
+	Data PatreonDataWebhookModel `json:"data" binding:"required"`
 }
 
 type PatreonService struct {

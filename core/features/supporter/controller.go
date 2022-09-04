@@ -84,14 +84,14 @@ func (c *SupporterController) HandleVerifySupporter(ctx *gin.Context) {
 
 func (c *SupporterController) handleSupporterWebhookByType(ctx context.Context, typ string, webhook services.PatreonWebhookModel) (supporter.SupporterModel, error) {
 	txn := tracing.FromContext(ctx)
-
-	txn.AddProperty("email", webhook.Data.Email)
+	email := webhook.Data.Attributes.Email
+	txn.AddProperty("email", email)
 
 	switch typ {
 	case "members:pledge:create":
-		return c.service.CreateNewSupporter(ctx, webhook.Data.Email), nil
+		return c.service.CreateNewSupporter(ctx, email), nil
 	case "members:pledge:delete":
-		return c.service.RevokeExistingSupporter(ctx, webhook.Data.Email), nil
+		return c.service.RevokeExistingSupporter(ctx, email), nil
 	default:
 		return supporter.SupporterModel{}, ErrInvalidWebhookCall
 	}
