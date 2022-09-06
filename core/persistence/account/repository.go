@@ -10,7 +10,7 @@ var (
 )
 
 type IAccountRepository interface {
-	Create(ctx context.Context, account AccountModel) (AccountModel, error)
+	Create(ctx context.Context, model AccountModel) (AccountModel, error)
 	AreCredentialsValid(ctx context.Context, username, password string) bool
 	GetByUsername(ctx context.Context, username string) (AccountModel, error)
 	GetById(ctx context.Context, userId string) (AccountModel, error)

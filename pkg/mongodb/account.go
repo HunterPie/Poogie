@@ -81,6 +81,11 @@ type AccountMongoRepository struct {
 	*mongo.Collection
 }
 
+// AreCredentialsValid implements account.IAccountRepository
+func (*AccountMongoRepository) AreCredentialsValid(ctx context.Context, username string, password string) bool {
+	panic("unimplemented")
+}
+
 // Create implements account.IAccountRepository
 func (r *AccountMongoRepository) Create(ctx context.Context, model account.AccountModel) (account.AccountModel, error) {
 	// TODO: Create index for Username and Email
@@ -104,6 +109,11 @@ func (r *AccountMongoRepository) Create(ctx context.Context, model account.Accou
 	}
 
 	return model, nil
+}
+
+// GetByUsername implements account.IAccountRepository
+func (*AccountMongoRepository) GetByUsername(ctx context.Context, username string) (account.AccountModel, error) {
+	panic("unimplemented")
 }
 
 // DeleteBy implements account.IAccountRepository
