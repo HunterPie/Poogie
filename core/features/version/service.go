@@ -31,6 +31,6 @@ func (s *VersionService) GetFileByVersion(ctx context.Context, version, supporte
 	case true:
 		return s.alphaBucket.FindBy(version)
 	default:
-		return s.alphaBucket.FindBy(version)
+		return s.bucket.FindBy(version)
 	}
 }
