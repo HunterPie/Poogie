@@ -3,7 +3,7 @@ package account
 import "context"
 
 type IAccountRepository interface {
-	Create(ctx context.Context, account AccountModel) AccountModel
+	Create(ctx context.Context, model AccountModel) AccountModel
 	GetById(ctx context.Context, userId string) (AccountModel, error)
 	IsEmailTaken(ctx context.Context, email string) bool
 	DeleteBy(ctx context.Context, userId string) AccountModel
