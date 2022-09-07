@@ -23,7 +23,10 @@ func (c *AccountController) CreateNewAccountHandler(ctx *gin.Context) {
 
 	account, err := c.service.CreateNewAccount(ctx, request, clientId)
 
-	if err != nil {
+	if err == ErrAccountWithEmailAlreadyExists || err == ErrUsernameTaken {
+		http.Conflict(ctx, err.Error())
+		return
+	} else if err != nil {
 		http.InternalServerError(ctx)
 		return
 	}
@@ -49,5 +52,9 @@ func (c *AccountController) GetMyUserHandler(ctx *gin.Context) {
 
 	account, _ := c.service.repository.GetById(ctx, userId)
 
-	http.Ok(ctx, toAccountResponse(account))
+	response := toAccountResponse(account)
+
+	response.Email, _ = c.service.cryptoService.Decrypt(response.Email)
+
+	http.Ok(ctx, response)
 }

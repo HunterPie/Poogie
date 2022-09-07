@@ -17,4 +17,5 @@ type ApiConfiguration struct {
 	HashSalt             string `envconfig:"HASH_SALT"`
 	CryptoSalt           string `envconfig:"AES_CRYPTO_SALT"`
 	CryptoKey            string `envconfig:"AES_CRYPTO_KEY"`
+	JwtKey               string `envconfig:"JWT_SIGNING_KEY"`
 }
