@@ -1,7 +1,9 @@
 package session
 
 import (
+	"github.com/Haato3o/poogie/pkg/crypto"
 	"github.com/Haato3o/poogie/pkg/http"
+	"github.com/Haato3o/poogie/pkg/jwt"
 	"github.com/Haato3o/poogie/pkg/server"
 	"github.com/gin-gonic/gin"
 )
@@ -30,12 +32,27 @@ func (*SessionHandler) GetVersion() int {
 
 // Load implements server.IRegisterableService
 func (*SessionHandler) Load(router *gin.RouterGroup, server *server.Server) error {
+	service := SessionService{
+		accountRepository: server.Database.GetAccountRepository(),
+		sessionRepository: server.Database.GetSessionRepository(),
+		authService: jwt.New(
+			server.Config.JwtKey,
+		),
+		hashService: crypto.NewHashService(
+			server.Config.HashSalt,
+		),
+	}
+
+	controller := SessionController{
+		service: &service,
+	}
 
 	// DEPRECATED ROUTES
 	router.GET("/session", func(ctx *gin.Context) { http.Ok(ctx, sessionResponse) })
 	router.POST("/session/end", func(ctx *gin.Context) { http.Ok(ctx, sessionResponse) })
 
-	router.POST("/login")
+	router.POST("/login", controller.LoginHandler)
+	router.POST("/logout", controller.LogoutHandler)
 
 	return nil
 }

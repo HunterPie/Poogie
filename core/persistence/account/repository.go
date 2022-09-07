@@ -22,9 +22,9 @@ type IAccountRepository interface {
 }
 
 type IAccountSessionRepository interface {
-	CreateSession(ctx context.Context, userId string, token string) (string, error)
+	CreateSession(ctx context.Context, token string) (string, error)
 	RevokeSession(ctx context.Context, token string) string
-	GetUserIdBy(ctx context.Context, token string) (string, error)
+	IsSessionValid(ctx context.Context, token string) bool
 }
 
 type IAccountBadgesRepository interface {

@@ -52,5 +52,9 @@ func (c *AccountController) GetMyUserHandler(ctx *gin.Context) {
 
 	account, _ := c.service.repository.GetById(ctx, userId)
 
-	http.Ok(ctx, toAccountResponse(account))
+	response := toAccountResponse(account)
+
+	response.Email, _ = c.service.cryptoService.Decrypt(response.Email)
+
+	http.Ok(ctx, response)
 }

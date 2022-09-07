@@ -18,6 +18,8 @@ type AccountModel struct {
 	Password                   string
 	Email                      string
 	ClientId                   string
+	Experience                 int64
+	Rating                     int64
 	AvatarUri                  string
 	Badges                     []AccountBadgesModel
 	HuntStatisticsSummaryModel []HuntStatisticsSummaryModel

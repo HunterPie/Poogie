@@ -16,6 +16,7 @@ var (
 
 type SessionService struct {
 	accountRepository account.IAccountRepository
+	sessionRepository account.IAccountSessionRepository
 	authService       auth.IAuthService
 	hashService       crypto.IHashService
 }
@@ -31,11 +32,15 @@ func (s *SessionService) CreateSession(ctx context.Context, credentials LoginReq
 
 	user, _ := s.accountRepository.GetByUsername(ctx, credentials.Username)
 
-	token := s.authService.Create(user.Id)
+	token, err := s.authService.Create(user.Id)
 
-	return token, nil
+	hashedToken := s.hashService.Hash(token)
+	s.sessionRepository.CreateSession(ctx, hashedToken)
+
+	return token, err
 }
 
-func (s *SessionService) RefreshSession(ctx context.Context, session string) (string, error) {
-
+func (s *SessionService) RevokeSession(ctx context.Context, token string) {
+	hashedToken := s.hashService.Hash(token)
+	s.sessionRepository.RevokeSession(ctx, hashedToken)
 }

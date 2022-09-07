@@ -5,8 +5,7 @@ type AuthPayload struct {
 }
 
 type IAuthService interface {
-	Create(userId string) string
-	Refresh(token string) string
+	Create(userId string) (string, error)
 	IsValid(token string) bool
 	Parse(token string) (AuthPayload, error)
 }

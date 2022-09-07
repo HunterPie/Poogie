@@ -34,6 +34,8 @@ type AccountSchema struct {
 	Username                string                        `bson:"username"`
 	Password                string                        `bson:"password"`
 	Email                   string                        `bson:"email"`
+	Experience              int64                         `bson:"experience"`
+	Rating                  int64                         `bson:"rating"`
 	ClientId                string                        `bson:"client_id"`
 	AvatarUrl               string                        `bson:"avatar_url"`
 	Badges                  []AccountBadgeSchema          `bson:"badges"`
@@ -66,6 +68,8 @@ func (schema AccountSchema) toAccountModel() account.AccountModel {
 		Password:                   schema.Password,
 		Email:                      schema.Email,
 		ClientId:                   schema.ClientId,
+		Experience:                 schema.Experience,
+		Rating:                     schema.Rating,
 		AvatarUri:                  schema.AvatarUrl,
 		Badges:                     toBadgeModels(schema.Badges),
 		HuntStatisticsSummaryModel: []account.HuntStatisticsSummaryModel{},
@@ -82,8 +86,20 @@ type AccountMongoRepository struct {
 }
 
 // AreCredentialsValid implements account.IAccountRepository
-func (*AccountMongoRepository) AreCredentialsValid(ctx context.Context, username string, password string) bool {
-	panic("unimplemented")
+func (r *AccountMongoRepository) AreCredentialsValid(ctx context.Context, username string, password string) bool {
+	query := bson.M{
+		"username": username,
+		"password": password,
+	}
+
+	var schema AccountSchema
+	err := r.FindOne(ctx, query).Decode(&schema)
+
+	if err != nil && err != mongo.ErrNoDocuments {
+		return false
+	}
+
+	return err != mongo.ErrNoDocuments
 }
 
 // Create implements account.IAccountRepository
@@ -112,8 +128,19 @@ func (r *AccountMongoRepository) Create(ctx context.Context, model account.Accou
 }
 
 // GetByUsername implements account.IAccountRepository
-func (*AccountMongoRepository) GetByUsername(ctx context.Context, username string) (account.AccountModel, error) {
-	panic("unimplemented")
+func (r *AccountMongoRepository) GetByUsername(ctx context.Context, username string) (account.AccountModel, error) {
+	query := bson.M{
+		"username": username,
+	}
+
+	var schema AccountSchema
+	err := r.FindOne(ctx, query).Decode(&schema)
+
+	if err != nil {
+		return account.AccountModel{}, ErrFailedToFindUser
+	}
+
+	return schema.toAccountModel(), nil
 }
 
 // DeleteBy implements account.IAccountRepository

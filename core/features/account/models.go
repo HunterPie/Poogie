@@ -25,6 +25,8 @@ type MyAccountResponse struct {
 	Username    string                 `json:"username"`
 	Email       string                 `json:"email"`
 	AvatarUrl   string                 `json:"avatar_url"`
+	Experience  int64                  `json:"experience"`
+	Rating      int64                  `json:"rating"`
 	Badges      []AccountBadgeResponse `json:"badges"`
 	IsSupporter bool                   `json:"is_supporter"`
 }
@@ -32,6 +34,8 @@ type MyAccountResponse struct {
 type UserAccountResponse struct {
 	Username    string                 `json:"username"`
 	AvatarUrl   string                 `json:"avatar_url"`
+	Experience  int64                  `json:"experience"`
+	Rating      int64                  `json:"rating"`
 	Badges      []AccountBadgeResponse `json:"badges"`
 	IsSupporter bool                   `json:"is_supporter"`
 }
@@ -40,6 +44,8 @@ func toUserAccountResponse(account account.AccountModel) UserAccountResponse {
 	return UserAccountResponse{
 		Username:    account.Username,
 		AvatarUrl:   account.AvatarUri,
+		Experience:  account.Experience,
+		Rating:      account.Rating,
 		Badges:      toBadgesResponse(account.Badges),
 		IsSupporter: account.IsSupporter,
 	}
@@ -50,6 +56,8 @@ func toAccountResponse(account account.AccountModel) MyAccountResponse {
 		Username:    account.Username,
 		Email:       account.Email,
 		AvatarUrl:   account.AvatarUri,
+		Experience:  account.Experience,
+		Rating:      account.Rating,
 		Badges:      toBadgesResponse(account.Badges),
 		IsSupporter: account.IsSupporter,
 	}
