@@ -6,6 +6,7 @@ import (
 
 	"github.com/Haato3o/poogie/core/persistence/account"
 	"github.com/Haato3o/poogie/core/persistence/database"
+	"github.com/Haato3o/poogie/core/persistence/notifications"
 	"github.com/Haato3o/poogie/core/persistence/supporter"
 	"github.com/newrelic/go-agent/v3/integrations/nrmongo"
 	"github.com/pkg/errors"
@@ -32,6 +33,11 @@ func (m *MongoDatabase) GetSessionRepository() account.IAccountSessionRepository
 // GetSupporterRepository implements database.IDatabase
 func (m *MongoDatabase) GetSupporterRepository() supporter.ISupporterRepository {
 	return NewSupporterRepository(m.Database)
+}
+
+// GetNotificationsRepository implements database.IDatabase
+func (m *MongoDatabase) GetNotificationsRepository() notifications.INotificationRepository {
+	return NewNotificationsRepository(m.Database)
 }
 
 // IsHealthy implements database.IDatabase

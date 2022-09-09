@@ -9,6 +9,7 @@ import (
 	reflect "reflect"
 
 	account "github.com/Haato3o/poogie/core/persistence/account"
+	"github.com/Haato3o/poogie/core/persistence/notifications"
 	supporter "github.com/Haato3o/poogie/core/persistence/supporter"
 	gomock "github.com/golang/mock/gomock"
 )
@@ -55,6 +56,14 @@ func (m *MockIDatabase) GetSessionRepository() account.IAccountSessionRepository
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetSessionRepository")
 	ret0, _ := ret[0].(account.IAccountSessionRepository)
+	return ret0
+}
+
+// GetSessionRepository mocks base method.
+func (m *MockIDatabase) GetNotificationsRepository() notifications.INotificationRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetNotificationsRepository")
+	ret0, _ := ret[0].(notifications.INotificationRepository)
 	return ret0
 }
 
