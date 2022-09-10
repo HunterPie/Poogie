@@ -20,7 +20,7 @@ func (*NotificationsHandler) GetVersion() int {
 // Load implements server.IRegisterableService
 func (*NotificationsHandler) Load(router *gin.RouterGroup, server *server.Server) error {
 	service := NotificationsService{
-		repository: nil,
+		repository: server.Database.GetNotificationsRepository(),
 	}
 	controller := NotificationsController{
 		NotificationsService: &service,

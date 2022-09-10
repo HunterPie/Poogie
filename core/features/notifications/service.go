@@ -12,7 +12,7 @@ type NotificationsService struct {
 
 func (s *NotificationsService) GetAllNotifications(ctx context.Context) []Notification {
 	models := s.repository.FindAll(ctx)
-	notifications := make([]Notification, len(models))
+	notifications := make([]Notification, 0)
 
 	for _, model := range models {
 		notifications = append(notifications, fromModel(model))

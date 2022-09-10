@@ -35,7 +35,7 @@ func toModel(schema NotificationSchema) notifications.NotificationModel {
 }
 
 func toModels(schemas []NotificationSchema) []notifications.NotificationModel {
-	models := make([]notifications.NotificationModel, len(schemas))
+	models := make([]notifications.NotificationModel, 0)
 
 	for _, schema := range schemas {
 		models = append(models, toModel(schema))
