@@ -31,6 +31,7 @@ func (*VersionHandler) Load(router *gin.RouterGroup, server *server.Server) erro
 	}
 
 	router.GET("/version", controller.GetLatestVersion)
+	router.GET("/version/latest", controller.GetLatestBinary)
 	router.GET("/version/:version", controller.GetBinaryByVersion)
 
 	return nil
