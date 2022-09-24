@@ -7,6 +7,7 @@ import (
 	"github.com/Haato3o/poogie/core/persistence/account"
 	"github.com/Haato3o/poogie/core/persistence/database"
 	"github.com/Haato3o/poogie/core/persistence/notifications"
+	"github.com/Haato3o/poogie/core/persistence/save"
 	"github.com/Haato3o/poogie/core/persistence/supporter"
 	"github.com/newrelic/go-agent/v3/integrations/nrmongo"
 	"github.com/pkg/errors"
@@ -18,6 +19,11 @@ import (
 type MongoDatabase struct {
 	*mongo.Client
 	*mongo.Database
+}
+
+// GetSaveBackupRepository implements database.IDatabase
+func (m *MongoDatabase) GetSaveBackupRepository() save.ISaveBackupRepository {
+	return NewBackupRepository(m.Database)
 }
 
 // GetAccountRepository implements database.IDatabase
