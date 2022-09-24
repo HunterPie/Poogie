@@ -27,6 +27,27 @@ func (c *VersionController) GetLatestVersion(ctx *gin.Context) {
 	})
 }
 
+func (c *VersionController) GetLatestBinary(ctx *gin.Context) {
+	supporterToken := utils.ExtractSupporterToken(ctx)
+	latest, err := c.service.GetLatestFileVersion(ctx, supporterToken)
+
+	if err != nil {
+		http.InternalServerError(ctx)
+		return
+	}
+
+	latestBinary, err := c.service.GetFileByVersion(ctx, latest, supporterToken)
+
+	if err != nil {
+		http.InternalServerError(ctx)
+		return
+	}
+
+	ctx.Header("Content-Length", strconv.Itoa(len(latestBinary)))
+
+	http.OkZip(ctx, latestBinary)
+}
+
 func (c *VersionController) GetBinaryByVersion(ctx *gin.Context) {
 	supporterToken := utils.ExtractSupporterToken(ctx)
 	version := ctx.Param("version")
