@@ -2,6 +2,7 @@ package jwt
 
 import (
 	"errors"
+	"time"
 
 	"github.com/Haato3o/poogie/core/auth"
 	"github.com/golang-jwt/jwt/v4"
@@ -16,7 +17,8 @@ type JWTAuthService struct {
 // Create implements auth.IAuthService
 func (s *JWTAuthService) Create(userId string) (string, error) {
 	claims := JWTUserClaims{
-		UserId: userId,
+		UserId:    userId,
+		CreatedAt: time.Now(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &claims)

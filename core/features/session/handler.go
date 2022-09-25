@@ -1,6 +1,7 @@
 package session
 
 import (
+	"github.com/Haato3o/poogie/core/middlewares"
 	"github.com/Haato3o/poogie/pkg/crypto"
 	"github.com/Haato3o/poogie/pkg/http"
 	"github.com/Haato3o/poogie/pkg/jwt"
@@ -52,7 +53,18 @@ func (*SessionHandler) Load(router *gin.RouterGroup, server *server.Server) erro
 	router.POST("/session/end", func(ctx *gin.Context) { http.Ok(ctx, sessionResponse) })
 
 	router.POST("/login", controller.LoginHandler)
-	router.POST("/logout", controller.LogoutHandler)
+
+	protected := router.Group("")
+	authMiddleware := middlewares.NewUserTransformMiddleware(
+		jwt.New(server.Config.JwtKey),
+		server.Database.GetSessionRepository(),
+		crypto.NewHashService(
+			server.Config.HashSalt,
+		),
+	)
+	protected.Use(authMiddleware.TokenToUserIdTransform)
+
+	protected.POST("/logout", controller.LogoutHandler)
 
 	return nil
 }

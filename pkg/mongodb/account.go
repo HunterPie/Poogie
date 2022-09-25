@@ -3,6 +3,7 @@ package mongodb
 import (
 	"context"
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/Haato3o/poogie/core/persistence/account"
@@ -31,6 +32,7 @@ type HuntStatisticsSummarySchema struct {
 
 type AccountSchema struct {
 	Id                      primitive.ObjectID            `bson:"_id"`
+	UsernameUnique          string                        `bson:"username_unique"`
 	Username                string                        `bson:"username"`
 	Password                string                        `bson:"password"`
 	Email                   string                        `bson:"email"`
@@ -107,14 +109,15 @@ func (r *AccountMongoRepository) Create(ctx context.Context, model account.Accou
 	// TODO: Create index for Username and Email
 
 	schema := AccountSchema{
-		Id:            primitive.NewObjectID(),
-		Username:      model.Username,
-		Password:      model.Password,
-		Email:         model.Email,
-		ClientId:      model.ClientId,
-		CreatedAt:     time.Now(),
-		UpdatedAt:     time.Now(),
-		LastSessionAt: time.Now(),
+		Id:             primitive.NewObjectID(),
+		UsernameUnique: strings.ToLower(model.Username),
+		Username:       model.Username,
+		Password:       model.Password,
+		Email:          model.Email,
+		ClientId:       model.ClientId,
+		CreatedAt:      time.Now(),
+		UpdatedAt:      time.Now(),
+		LastSessionAt:  time.Now(),
 	}
 
 	_, err := r.InsertOne(ctx, schema)
@@ -185,7 +188,7 @@ func (r *AccountMongoRepository) IsEmailTaken(ctx context.Context, email string)
 // IsUsernameTaken implements account.IAccountRepository
 func (r *AccountMongoRepository) IsUsernameTaken(ctx context.Context, username string) bool {
 	query := bson.M{
-		"username": username,
+		"username_unique": strings.ToLower(username),
 	}
 
 	var schema AccountSchema
@@ -195,8 +198,21 @@ func (r *AccountMongoRepository) IsUsernameTaken(ctx context.Context, username s
 }
 
 // UpdateAvatar implements account.IAccountRepository
-func (*AccountMongoRepository) UpdateAvatar(ctx context.Context, userId string, avatar string) account.AccountModel {
-	panic("unimplemented")
+func (r *AccountMongoRepository) UpdateAvatar(ctx context.Context, userId string, avatar string) account.AccountModel {
+	id, _ := primitive.ObjectIDFromHex(userId)
+
+	query := bson.M{
+		"_id": id,
+	}
+
+	update := bson.M{
+		"avatar_url": avatar,
+	}
+
+	var schema AccountSchema
+	_ = r.FindOneAndUpdate(ctx, query, update).Decode(&schema)
+
+	return schema.toAccountModel()
 }
 
 // UpdatePassword implements account.IAccountRepository

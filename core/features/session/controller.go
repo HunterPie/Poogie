@@ -1,6 +1,7 @@
 package session
 
 import (
+	"github.com/Haato3o/poogie/core/features/common"
 	"github.com/Haato3o/poogie/core/tracing"
 	"github.com/Haato3o/poogie/core/utils"
 	"github.com/Haato3o/poogie/pkg/http"
@@ -14,14 +15,19 @@ type SessionController struct {
 func (c *SessionController) LoginHandler(ctx *gin.Context) {
 	txn := tracing.FromContext(ctx)
 	var request LoginRequest
-	ok := utils.DeserializeBody(ctx, &request)
+	ok, _ := utils.DeserializeBody(ctx, &request)
 
 	if !ok {
-		http.BadRequest(ctx)
+		http.BadRequest(ctx, common.ErrInvalidPayload)
 		return
 	}
 
 	token, err := c.service.CreateSession(ctx, request)
+
+	if err == ErrWrongCredentials {
+		http.Unauthorized(ctx)
+		return
+	}
 
 	if err != nil {
 		txn.AddProperty("error_message", err)

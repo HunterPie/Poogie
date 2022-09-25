@@ -3,6 +3,7 @@ package http
 import (
 	"net/http"
 
+	"github.com/Haato3o/poogie/core/features/common"
 	"github.com/gin-gonic/gin"
 )
 
@@ -10,8 +11,8 @@ func NotFoundHandler(c *gin.Context) {
 	c.JSON(http.StatusNotFound, gin.H{"error": NOT_FOUND_MESSAGE})
 }
 
-func BadRequest(c *gin.Context) {
-	c.JSON(http.StatusBadRequest, gin.H{"error": BAD_REQUEST_MESSAGE})
+func BadRequest(c *gin.Context, code string) {
+	c.JSON(http.StatusBadRequest, gin.H{"error": BAD_REQUEST_MESSAGE, "code": code})
 }
 
 func ElementNotFound(c *gin.Context) {
@@ -23,11 +24,11 @@ func InternalServerError(c *gin.Context) {
 }
 
 func Unauthorized(c *gin.Context) {
-	c.JSON(http.StatusUnauthorized, gin.H{"error": UNAUTHORIZED_MESSAGE})
+	c.JSON(http.StatusUnauthorized, gin.H{"error": UNAUTHORIZED_MESSAGE, "code": common.ErrInvalidCredentials})
 }
 
-func Conflict(c *gin.Context, message string) {
-	c.JSON(http.StatusConflict, gin.H{"error": message})
+func Conflict(c *gin.Context, message string, code string) {
+	c.JSON(http.StatusConflict, gin.H{"error": message, "code": code})
 }
 
 func Ok[T any](c *gin.Context, body T) {
