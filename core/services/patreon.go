@@ -33,7 +33,7 @@ func NewPatreonService(secret string) *PatreonService {
 func (s *PatreonService) GetSupporterWebhook(ctx *gin.Context) (PatreonWebhookModel, error) {
 	var body PatreonWebhookModel
 
-	valid := utils.DeserializeBody(ctx, &body)
+	valid, _ := utils.DeserializeBody(ctx, &body)
 
 	if !valid {
 		return body, errors.New("wrong webhook payload format")

@@ -29,14 +29,19 @@ func DeserializeHeaders[T any](ctx *gin.Context, header *T, validators ...func(*
 	return err == nil
 }
 
-func DeserializeBody[T any](ctx *gin.Context, body *T, validators ...func(*T) bool) bool {
+func DeserializeBody[T any](ctx *gin.Context, body *T, validators ...func(*T) (bool, bool)) (bool, bool) {
 	err := ctx.BindJSON(body)
 
+	if err != nil {
+		return false, false
+	}
+
 	for _, validator := range validators {
-		if !validator(body) {
-			return false
+		success, handled := validator(body)
+		if !success {
+			return false, handled
 		}
 	}
 
-	return err == nil
+	return true, false
 }

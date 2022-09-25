@@ -1,6 +1,7 @@
 package account
 
 import (
+	"github.com/Haato3o/poogie/core/features/common"
 	"github.com/Haato3o/poogie/core/utils"
 	"github.com/Haato3o/poogie/pkg/http"
 	"github.com/gin-gonic/gin"
@@ -12,10 +13,32 @@ type AccountController struct {
 
 func (c *AccountController) CreateNewAccountHandler(ctx *gin.Context) {
 	var request AccountCreationRequest
-	ok := utils.DeserializeBody(ctx, &request)
+	ok, handled := utils.DeserializeBody(ctx, &request, func(t *AccountCreationRequest) (bool, bool) {
+
+		if !utils.ValidateEmail(t.Email) {
+			http.BadRequest(ctx, common.ErrInvalidEmail)
+			return false, true
+		}
+
+		if len(request.Username) < 3 {
+			http.BadRequest(ctx, common.ErrInvalidUsername)
+			return false, true
+		}
+
+		if len(request.Password) < 8 {
+			http.BadRequest(ctx, common.ErrInvalidPassword)
+			return false, true
+		}
+
+		return true, false
+	})
+
+	if handled {
+		return
+	}
 
 	if !ok {
-		http.BadRequest(ctx)
+		http.BadRequest(ctx, common.ErrInvalidPayload)
 		return
 	}
 
@@ -24,7 +47,7 @@ func (c *AccountController) CreateNewAccountHandler(ctx *gin.Context) {
 	account, err := c.service.CreateNewAccount(ctx, request, clientId)
 
 	if err == ErrAccountWithEmailAlreadyExists || err == ErrUsernameTaken {
-		http.Conflict(ctx, err.Error())
+		http.Conflict(ctx, err.Error(), common.ErrUserAlreadyExists)
 		return
 	} else if err != nil {
 		http.InternalServerError(ctx)

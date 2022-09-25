@@ -5,6 +5,7 @@ import (
 
 	"github.com/Haato3o/poogie/core/auth"
 	"github.com/Haato3o/poogie/core/crypto"
+	"github.com/Haato3o/poogie/core/features/common"
 	"github.com/Haato3o/poogie/core/persistence/account"
 	"github.com/gin-gonic/gin"
 )
@@ -22,6 +23,7 @@ type UserTransformMiddleware struct {
 
 type UnauthorizedResponse struct {
 	Error string `json:"error"`
+	Code  string `json:"code"`
 }
 
 func NewUserTransformMiddleware(service auth.IAuthService, repository account.IAccountSessionRepository, hashService crypto.IHashService) *UserTransformMiddleware {
@@ -36,6 +38,7 @@ func (m *UserTransformMiddleware) TokenToUserIdTransform(ctx *gin.Context) {
 	if token == "" {
 		ctx.AbortWithStatusJSON(http.StatusUnauthorized, UnauthorizedResponse{
 			Error: "You must log in first",
+			Code:  common.ErrInvalidSessionToken,
 		})
 		return
 	}
@@ -45,6 +48,7 @@ func (m *UserTransformMiddleware) TokenToUserIdTransform(ctx *gin.Context) {
 	if !isValid {
 		ctx.AbortWithStatusJSON(http.StatusUnauthorized, UnauthorizedResponse{
 			Error: "Invalid session token",
+			Code:  common.ErrInvalidSessionToken,
 		})
 		return
 	}
@@ -54,6 +58,7 @@ func (m *UserTransformMiddleware) TokenToUserIdTransform(ctx *gin.Context) {
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusUnauthorized, UnauthorizedResponse{
 			Error: "Invalid session token",
+			Code:  common.ErrInvalidSessionToken,
 		})
 		return
 	}
@@ -64,6 +69,7 @@ func (m *UserTransformMiddleware) TokenToUserIdTransform(ctx *gin.Context) {
 	if !IsSessionValid {
 		ctx.AbortWithStatusJSON(http.StatusUnauthorized, UnauthorizedResponse{
 			Error: "Invalid session token",
+			Code:  common.ErrInvalidSessionToken,
 		})
 		return
 	}

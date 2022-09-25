@@ -6,6 +6,7 @@ import (
 	"errors"
 	"io"
 
+	"github.com/Haato3o/poogie/core/features/common"
 	"github.com/Haato3o/poogie/core/persistence/supporter"
 	"github.com/Haato3o/poogie/core/services"
 	"github.com/Haato3o/poogie/core/tracing"
@@ -35,7 +36,7 @@ func (c *SupporterController) HandleSupporterWebhook(ctx *gin.Context) {
 
 	if err != nil || !c.patreonService.IsWebhookValid(signature, body) {
 		txn.AddProperty("error_type", "INVALID_PAYLOAD_SIGNATURE")
-		http.BadRequest(ctx)
+		http.BadRequest(ctx, common.ErrInvalidWebhook)
 		return
 	}
 
@@ -43,7 +44,7 @@ func (c *SupporterController) HandleSupporterWebhook(ctx *gin.Context) {
 
 	if err != nil {
 		txn.AddProperty("error_type", "INVALID_WEBHOOK_FORMAT")
-		http.BadRequest(ctx)
+		http.BadRequest(ctx, common.ErrInvalidWebhook)
 		return
 	}
 
@@ -51,7 +52,7 @@ func (c *SupporterController) HandleSupporterWebhook(ctx *gin.Context) {
 
 	if err != nil {
 		txn.AddProperty("error_type", "INVALID_WEBHOOK_EVENT")
-		http.BadRequest(ctx)
+		http.BadRequest(ctx, common.ErrInvalidWebhook)
 		return
 	}
 
@@ -68,7 +69,7 @@ func (c *SupporterController) HandleVerifySupporter(ctx *gin.Context) {
 	if !utils.DeserializeHeaders(ctx, &supporterHeader, func(header *SupporterHeaderModel) bool {
 		return header.ClientId != ""
 	}) {
-		http.BadRequest(ctx)
+		http.BadRequest(ctx, common.ErrGeneric)
 		return
 	}
 
