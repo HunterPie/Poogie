@@ -53,6 +53,8 @@ func main() {
 	godotenv.Load()
 	_ = envconfig.Process("POOGIE", &apiConfig)
 
+	log.NewLogger(apiConfig.NewRelicLicenseKey)
+
 	instance, err := server.New(&apiConfig)
 
 	if err != nil {
