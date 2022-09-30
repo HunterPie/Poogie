@@ -45,6 +45,7 @@ func Debug(message string, ctx ...*LogContext) {
 
 func Info(message string, ctx ...*LogContext) {
 	logger.Infow(message, zap.Any("event", ctx))
+	NewRelicLogger.Info(message, ctx)
 }
 
 func Warn(message string, ctx ...*LogContext) {
@@ -53,6 +54,7 @@ func Warn(message string, ctx ...*LogContext) {
 
 func Error(message string, err error, ctx ...*LogContext) {
 	logger.Errorw(message, zap.Error(err), zap.Any("event", ctx))
+	NewRelicLogger.Error(message, err, ctx)
 }
 
 func Fatal(message string, err error, ctx ...*LogContext) {
