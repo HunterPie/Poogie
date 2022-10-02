@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  api.poogie.dev:
+    container_name: api.poogie.dev
+    image: api.poogie.dev:local
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 6969:6969
+    env_file:
+      - .env
+    networks:
+      - bubble
+
+  mongodb.poogie.dev:
+    image: mongo:latest
+    ports:
+      - 27017:27017
+    volumes:
+      - poogie_mongodb_volume:/data/db
+    networks:
+      - bubble
+
+networks:
+  bubble:
+    external: true
+
+volumes:
+  poogie_mongodb_volume:

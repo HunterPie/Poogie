@@ -130,9 +130,9 @@ func (r *AccountMongoRepository) VerifyAccount(ctx context.Context, userId strin
 }
 
 // AreCredentialsValid implements account.IAccountRepository
-func (r *AccountMongoRepository) AreCredentialsValid(ctx context.Context, username string, password string) bool {
+func (r *AccountMongoRepository) AreCredentialsValid(ctx context.Context, email string, password string) bool {
 	query := bson.M{
-		"username": username,
+		"email":    email,
 		"password": password,
 	}
 
@@ -167,9 +167,9 @@ func (r *AccountMongoRepository) Create(ctx context.Context, model account.Accou
 }
 
 // GetByUsername implements account.IAccountRepository
-func (r *AccountMongoRepository) GetByUsername(ctx context.Context, username string) (account.AccountModel, error) {
+func (r *AccountMongoRepository) GetByEmail(ctx context.Context, email string) (account.AccountModel, error) {
 	query := bson.M{
-		"username": username,
+		"email": email,
 	}
 
 	var schema AccountSchema

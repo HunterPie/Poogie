@@ -42,6 +42,10 @@ func (*SessionHandler) Load(router *gin.RouterGroup, server *server.Server) erro
 		hashService: crypto.NewHashService(
 			server.Config.HashSalt,
 		),
+		cryptoService: crypto.NewCryptoService(
+			server.Config.CryptoKey,
+			server.Config.CryptoSalt,
+		),
 	}
 
 	controller := SessionController{

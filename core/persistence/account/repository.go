@@ -11,8 +11,8 @@ var (
 
 type IAccountRepository interface {
 	Create(ctx context.Context, model AccountModel) (AccountModel, error)
-	AreCredentialsValid(ctx context.Context, username, password string) bool
-	GetByUsername(ctx context.Context, username string) (AccountModel, error)
+	AreCredentialsValid(ctx context.Context, email, password string) bool
+	GetByEmail(ctx context.Context, email string) (AccountModel, error)
 	GetById(ctx context.Context, userId string) (AccountModel, error)
 	IsEmailTaken(ctx context.Context, email string) bool
 	IsUsernameTaken(ctx context.Context, username string) bool

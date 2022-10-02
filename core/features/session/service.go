@@ -20,18 +20,20 @@ type SessionService struct {
 	sessionRepository account.IAccountSessionRepository
 	authService       auth.IAuthService
 	hashService       crypto.IHashService
+	cryptoService     crypto.ICryptographyService
 }
 
 func (s *SessionService) CreateSession(ctx context.Context, credentials LoginRequest) (string, error) {
 	hashedPassword := s.hashService.Hash(credentials.Password)
+	encryptedEmail := s.cryptoService.Encrypt(credentials.Email)
 
-	isLoginValid := s.accountRepository.AreCredentialsValid(ctx, credentials.Username, hashedPassword)
+	isLoginValid := s.accountRepository.AreCredentialsValid(ctx, encryptedEmail, hashedPassword)
 
 	if !isLoginValid {
 		return "", ErrWrongCredentials
 	}
 
-	user, _ := s.accountRepository.GetByUsername(ctx, credentials.Username)
+	user, _ := s.accountRepository.GetByEmail(ctx, encryptedEmail)
 
 	if !user.IsActive {
 		return "", ErrUnverifiedAccount
