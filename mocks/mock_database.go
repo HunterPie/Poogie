@@ -9,7 +9,7 @@ import (
 	reflect "reflect"
 
 	account "github.com/Haato3o/poogie/core/persistence/account"
-	"github.com/Haato3o/poogie/core/persistence/notifications"
+	notifications "github.com/Haato3o/poogie/core/persistence/notifications"
 	supporter "github.com/Haato3o/poogie/core/persistence/supporter"
 	gomock "github.com/golang/mock/gomock"
 )
@@ -51,19 +51,39 @@ func (mr *MockIDatabaseMockRecorder) GetAccountRepository() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAccountRepository", reflect.TypeOf((*MockIDatabase)(nil).GetAccountRepository))
 }
 
+// GetAccountVerificationRepository mocks base method.
+func (m *MockIDatabase) GetAccountVerificationRepository() account.IAccountVerificationRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAccountVerificationRepository")
+	ret0, _ := ret[0].(account.IAccountVerificationRepository)
+	return ret0
+}
+
+// GetAccountVerificationRepository indicates an expected call of GetAccountVerificationRepository.
+func (mr *MockIDatabaseMockRecorder) GetAccountVerificationRepository() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAccountVerificationRepository", reflect.TypeOf((*MockIDatabase)(nil).GetAccountVerificationRepository))
+}
+
+// GetNotificationsRepository mocks base method.
+func (m *MockIDatabase) GetNotificationsRepository() notifications.INotificationRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetNotificationsRepository")
+	ret0, _ := ret[0].(notifications.INotificationRepository)
+	return ret0
+}
+
+// GetNotificationsRepository indicates an expected call of GetNotificationsRepository.
+func (mr *MockIDatabaseMockRecorder) GetNotificationsRepository() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNotificationsRepository", reflect.TypeOf((*MockIDatabase)(nil).GetNotificationsRepository))
+}
+
 // GetSessionRepository mocks base method.
 func (m *MockIDatabase) GetSessionRepository() account.IAccountSessionRepository {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetSessionRepository")
 	ret0, _ := ret[0].(account.IAccountSessionRepository)
-	return ret0
-}
-
-// GetSessionRepository mocks base method.
-func (m *MockIDatabase) GetNotificationsRepository() notifications.INotificationRepository {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetNotificationsRepository")
-	ret0, _ := ret[0].(notifications.INotificationRepository)
 	return ret0
 }
 

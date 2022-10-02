@@ -19,6 +19,7 @@ type IAccountRepository interface {
 	DeleteBy(ctx context.Context, userId string) AccountModel
 	UpdatePassword(ctx context.Context, userId, password string) AccountModel
 	UpdateAvatar(ctx context.Context, userId, avatar string) AccountModel
+	VerifyAccount(ctx context.Context, userId string)
 }
 
 type IAccountSessionRepository interface {
@@ -35,4 +36,9 @@ type IAccountBadgesRepository interface {
 type IAccountHuntStatisticSummaryRepository interface {
 	Create(ctx context.Context, userId, badgeId string)
 	Delete(ctx context.Context, userId, badgeId string)
+}
+
+type IAccountVerificationRepository interface {
+	Create(ctx context.Context, token string, account string)
+	Find(ctx context.Context, token string) (string, error)
 }

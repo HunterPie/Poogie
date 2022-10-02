@@ -28,4 +28,5 @@ type AccountModel struct {
 	UpdatedAt                  time.Time
 	LastSessionAt              time.Time
 	IsArchived                 bool
+	IsActive                   bool
 }

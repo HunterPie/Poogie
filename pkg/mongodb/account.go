@@ -80,11 +80,53 @@ func (schema AccountSchema) toAccountModel() account.AccountModel {
 		UpdatedAt:                  schema.UpdatedAt,
 		LastSessionAt:              schema.LastSessionAt,
 		IsArchived:                 schema.IsArchived,
+		IsActive:                   schema.IsActive,
+	}
+}
+
+func toAccountSchema(model account.AccountModel) AccountSchema {
+	return AccountSchema{
+		Id:                      primitive.NewObjectID(),
+		UsernameUnique:          strings.ToLower(model.Username),
+		Username:                model.Username,
+		Password:                model.Password,
+		Email:                   model.Email,
+		Experience:              model.Experience,
+		Rating:                  model.Rating,
+		ClientId:                model.ClientId,
+		AvatarUrl:               model.AvatarUri,
+		Badges:                  []AccountBadgeSchema{},
+		HuntStatisticsSummaries: []HuntStatisticsSummarySchema{},
+		IsSupporter:             model.IsSupporter,
+		CreatedAt:               time.Now(),
+		UpdatedAt:               time.Now(),
+		LastSessionAt:           time.Now(),
+		IsArchived:              model.IsArchived,
+		IsActive:                model.IsActive,
 	}
 }
 
 type AccountMongoRepository struct {
 	*mongo.Collection
+}
+
+// VerifyAccount implements account.IAccountRepository
+func (r *AccountMongoRepository) VerifyAccount(ctx context.Context, userId string) {
+	id, _ := primitive.ObjectIDFromHex(userId)
+
+	query := bson.M{
+		"_id": id,
+	}
+
+	update := bson.M{
+		"$set": bson.M{
+			"is_active": true,
+		},
+	}
+
+	var schema AccountSchema
+	_ = r.FindOneAndUpdate(ctx, query, update).Decode(&schema)
+
 }
 
 // AreCredentialsValid implements account.IAccountRepository
@@ -106,19 +148,7 @@ func (r *AccountMongoRepository) AreCredentialsValid(ctx context.Context, userna
 
 // Create implements account.IAccountRepository
 func (r *AccountMongoRepository) Create(ctx context.Context, model account.AccountModel) (account.AccountModel, error) {
-	// TODO: Create index for Username and Email
-
-	schema := AccountSchema{
-		Id:             primitive.NewObjectID(),
-		UsernameUnique: strings.ToLower(model.Username),
-		Username:       model.Username,
-		Password:       model.Password,
-		Email:          model.Email,
-		ClientId:       model.ClientId,
-		CreatedAt:      time.Now(),
-		UpdatedAt:      time.Now(),
-		LastSessionAt:  time.Now(),
-	}
+	schema := toAccountSchema(model)
 
 	_, err := r.InsertOne(ctx, schema)
 
@@ -127,7 +157,13 @@ func (r *AccountMongoRepository) Create(ctx context.Context, model account.Accou
 		return model, account.ErrFailedToCreateAccount
 	}
 
-	return model, nil
+	query := bson.M{
+		"email": model.Email,
+	}
+
+	_ = r.FindOne(ctx, query).Decode(&schema)
+
+	return schema.toAccountModel(), nil
 }
 
 // GetByUsername implements account.IAccountRepository

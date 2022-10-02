@@ -11,4 +11,5 @@ const (
 	ErrUserAlreadyExists   = "USER_ALREADY_EXISTS"
 	ErrInvalidWebhook      = "INVALID_WEBHOOK"
 	ErrInvalidSessionToken = "INVALID_SESSION_TOKEN"
+	ErrUnverifiedAccount   = "UNVERIFIED_ACCOUNT"
 )

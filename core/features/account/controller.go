@@ -57,6 +57,26 @@ func (c *AccountController) CreateNewAccountHandler(ctx *gin.Context) {
 	http.Ok(ctx, toAccountResponse(account))
 }
 
+func (c *AccountController) VerifyAccount(ctx *gin.Context) {
+	token := ctx.Param("token")
+
+	_, err := c.service.VerifyAccount(ctx, token)
+
+	if err == ErrAlreadyActivated {
+		http.Ok(ctx, AccountActivateResponse{
+			Message: "That account has already been verified",
+		})
+		return
+	} else if err != nil {
+		http.ElementNotFound(ctx)
+		return
+	}
+
+	http.Ok(ctx, AccountActivateResponse{
+		Message: "Account is now verified!",
+	})
+}
+
 func (c *AccountController) GetUserHandler(ctx *gin.Context) {
 	userId := ctx.Param("userId")
 
