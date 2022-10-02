@@ -22,12 +22,13 @@ type NewRelicLogMessage struct {
 }
 
 type NewRelicHeadlessLogger struct {
-	apiKey string
-	buffer []NewRelicLogMessage
+	apiKey  string
+	buffer  []NewRelicLogMessage
+	channel chan int
 }
 
 func NewLogger(apiKey string) {
-	NewRelicLogger = &NewRelicHeadlessLogger{apiKey: apiKey}
+	NewRelicLogger = &NewRelicHeadlessLogger{apiKey: apiKey, channel: make(chan int, 1)}
 
 	Info("initialized NewRelic headless client")
 }
@@ -48,11 +49,11 @@ func (l *NewRelicHeadlessLogger) Error(message string, err error, ctx []*LogCont
 	})
 }
 
-func sendAsync(request *http.Request, ch chan int) {
+func (l *NewRelicHeadlessLogger) sendAsync(request *http.Request) {
 	client := &http.Client{}
 	client.Do(request)
 
-	ch <- 0
+	l.channel <- 0
 }
 
 func (l *NewRelicHeadlessLogger) send(message NewRelicLogMessage) {
@@ -75,8 +76,7 @@ func (l *NewRelicHeadlessLogger) send(message NewRelicLogMessage) {
 			Error("failed to flush log buffer", err)
 		}
 
-		ch := make(chan int, 1)
-		go sendAsync(req, ch)
+		go l.sendAsync(req)
 
 		l.buffer = make([]NewRelicLogMessage, 0)
 	}
