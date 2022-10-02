@@ -40,6 +40,10 @@ type UserAccountResponse struct {
 	IsSupporter bool                   `json:"is_supporter"`
 }
 
+type AccountActivateResponse struct {
+	Message string `json:"message"`
+}
+
 func toUserAccountResponse(account account.AccountModel) UserAccountResponse {
 	return UserAccountResponse{
 		Username:    account.Username,

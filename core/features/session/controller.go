@@ -29,6 +29,11 @@ func (c *SessionController) LoginHandler(ctx *gin.Context) {
 		return
 	}
 
+	if err == ErrUnverifiedAccount {
+		http.UnauthorizedWithCustomError(ctx, common.ErrUnverifiedAccount, "Account is not verified yet, please check your inbox and spam folders for the verification email.")
+		return
+	}
+
 	if err != nil {
 		txn.AddProperty("error_message", err)
 		http.InternalServerError(ctx)

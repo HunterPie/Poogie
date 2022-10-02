@@ -6,11 +6,16 @@ import (
 	"time"
 
 	"github.com/Haato3o/poogie/core/crypto"
+	"github.com/Haato3o/poogie/core/email"
 	"github.com/Haato3o/poogie/core/persistence/account"
+	"github.com/Haato3o/poogie/pkg/log"
+	"github.com/google/uuid"
 )
 
 const (
-	DefaultAvatarUri = "" // TODO: Add default profile picture
+	DefaultAvatarUri       = "https://cdn.hunterpie.com/avatars/default.png"
+	VerificationUri        = "https://api.hunterpie.com/v1/account/verify/"
+	VerificationEmailTitle = "HunterPie - Account Verification"
 )
 
 var (
@@ -18,12 +23,41 @@ var (
 	ErrUsernameTaken                 = errors.New("username is taken")
 	ErrWrongPassword                 = errors.New("invalid password")
 	ErrAccountDoesNotExist           = errors.New("account does not exist")
+	ErrUnverifiedAccount             = errors.New("account is not verified")
+	ErrAlreadyActivated              = errors.New("account already verified")
+	ErrUnknownError                  = errors.New("something went wrong")
 )
 
 type AccountService struct {
-	repository    account.IAccountRepository
-	cryptoService crypto.ICryptographyService
-	hashService   crypto.IHashService
+	repository             account.IAccountRepository
+	cryptoService          crypto.ICryptographyService
+	hashService            crypto.IHashService
+	verificationRepository account.IAccountVerificationRepository
+	emailService           email.IEmailService
+}
+
+func (s *AccountService) VerifyAccount(ctx context.Context, token string) (bool, error) {
+	userId, err := s.verificationRepository.Find(ctx, token)
+
+	if err != nil {
+		log.Error("error when verifying account", err)
+		return false, ErrUnknownError
+	}
+
+	user, err := s.repository.GetById(ctx, userId)
+
+	if err != nil {
+		log.Error("error when verifying account", err)
+		return false, ErrUnknownError
+	}
+
+	if user.IsActive {
+		return false, ErrAlreadyActivated
+	}
+
+	s.repository.VerifyAccount(ctx, user.Id)
+
+	return true, nil
 }
 
 func (s *AccountService) CreateNewAccount(
@@ -56,11 +90,30 @@ func (s *AccountService) CreateNewAccount(
 		UpdatedAt:                  time.Now(),
 		LastSessionAt:              time.Now(),
 		IsArchived:                 false,
+		IsActive:                   false,
 	})
 
 	if err != nil {
 		return model, err
 	}
+
+	model.Email, _ = s.cryptoService.Decrypt(model.Email)
+
+	verificationToken := uuid.NewString()
+	s.verificationRepository.Create(ctx, verificationToken, model.Id)
+
+	s.emailService.Send(
+		VerificationEmailTitle,
+		[]string{data.Email},
+		"./templates/activate_account_email.html",
+		struct {
+			Username string
+			Link     string
+		}{
+			Username: data.Username,
+			Link:     VerificationUri + verificationToken,
+		},
+	)
 
 	return model, nil
 }
@@ -70,6 +123,10 @@ func (s *AccountService) GetAccountById(ctx context.Context, userId string) (acc
 
 	if err != nil {
 		return account.AccountModel{}, ErrAccountDoesNotExist
+	}
+
+	if !user.IsActive {
+		return account.AccountModel{}, ErrUnverifiedAccount
 	}
 
 	return user, nil

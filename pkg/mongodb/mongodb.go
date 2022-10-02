@@ -20,6 +20,11 @@ type MongoDatabase struct {
 	*mongo.Database
 }
 
+// GetAccountVerificationRepository implements database.IDatabase
+func (m *MongoDatabase) GetAccountVerificationRepository() account.IAccountVerificationRepository {
+	return NewAccountVerificationRepository(m.Database)
+}
+
 // GetAccountRepository implements database.IDatabase
 func (m *MongoDatabase) GetAccountRepository() account.IAccountRepository {
 	return NewAccountRepository(m.Database)

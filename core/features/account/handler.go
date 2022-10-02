@@ -5,6 +5,7 @@ import (
 	"github.com/Haato3o/poogie/pkg/crypto"
 	"github.com/Haato3o/poogie/pkg/jwt"
 	"github.com/Haato3o/poogie/pkg/server"
+	"github.com/Haato3o/poogie/pkg/smtp"
 	"github.com/gin-gonic/gin"
 )
 
@@ -23,15 +24,21 @@ func (*AccountHandler) GetVersion() int {
 // Load implements server.IRegisterableService
 func (*AccountHandler) Load(router *gin.RouterGroup, server *server.Server) error {
 	service := AccountService{
-		repository:    server.Database.GetAccountRepository(),
-		cryptoService: crypto.NewCryptoService(server.Config.CryptoKey, server.Config.CryptoSalt),
-		hashService:   crypto.NewHashService(server.Config.HashSalt),
+		repository:             server.Database.GetAccountRepository(),
+		cryptoService:          crypto.NewCryptoService(server.Config.CryptoKey, server.Config.CryptoSalt),
+		hashService:            crypto.NewHashService(server.Config.HashSalt),
+		verificationRepository: server.Database.GetAccountVerificationRepository(),
+		emailService: smtp.New(
+			server.Config.PoogieEmail,
+			server.Config.PoogiePassword,
+		),
 	}
 	controller := AccountController{
 		service: &service,
 	}
 
 	router.POST("/account", controller.CreateNewAccountHandler)
+	router.GET("/account/verify/:token", controller.VerifyAccount)
 
 	userRouter := router.Group("/user")
 

@@ -27,6 +27,10 @@ func Unauthorized(c *gin.Context) {
 	c.JSON(http.StatusUnauthorized, gin.H{"error": UNAUTHORIZED_MESSAGE, "code": common.ErrInvalidCredentials})
 }
 
+func UnauthorizedWithCustomError(c *gin.Context, code string, message string) {
+	c.JSON(http.StatusUnauthorized, gin.H{"error": message, "code": code})
+}
+
 func Conflict(c *gin.Context, message string, code string) {
 	c.JSON(http.StatusConflict, gin.H{"error": message, "code": code})
 }

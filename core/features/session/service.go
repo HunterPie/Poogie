@@ -10,8 +10,9 @@ import (
 )
 
 var (
-	ErrWrongCredentials = errors.New("invalid username or password")
-	ErrInvalidToken     = errors.New("invalid session token")
+	ErrWrongCredentials  = errors.New("invalid username or password")
+	ErrInvalidToken      = errors.New("invalid session token")
+	ErrUnverifiedAccount = errors.New("account is not verified")
 )
 
 type SessionService struct {
@@ -31,6 +32,10 @@ func (s *SessionService) CreateSession(ctx context.Context, credentials LoginReq
 	}
 
 	user, _ := s.accountRepository.GetByUsername(ctx, credentials.Username)
+
+	if !user.IsActive {
+		return "", ErrUnverifiedAccount
+	}
 
 	token, err := s.authService.Create(user.Id)
 
