@@ -15,6 +15,10 @@ func BadRequest(c *gin.Context, code string) {
 	c.JSON(http.StatusBadRequest, gin.H{"error": BAD_REQUEST_MESSAGE, "code": code})
 }
 
+func TooLarge(c *gin.Context, code string) {
+	c.JSON(http.StatusRequestEntityTooLarge, gin.H{"error": FILE_TOO_LARGE, "code": code})
+}
+
 func ElementNotFound(c *gin.Context) {
 	c.JSON(http.StatusNotFound, gin.H{"error": ELEMENT_NOT_FOUND_MESSAGE})
 }

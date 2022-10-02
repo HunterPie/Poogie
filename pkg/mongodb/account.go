@@ -120,7 +120,8 @@ func (r *AccountMongoRepository) VerifyAccount(ctx context.Context, userId strin
 
 	update := bson.M{
 		"$set": bson.M{
-			"is_active": true,
+			"is_active":  true,
+			"updated_at": time.Now(),
 		},
 	}
 
@@ -242,11 +243,16 @@ func (r *AccountMongoRepository) UpdateAvatar(ctx context.Context, userId string
 	}
 
 	update := bson.M{
-		"avatar_url": avatar,
+		"$set": bson.M{
+			"avatar_url": avatar,
+			"updated_at": time.Now(),
+		},
 	}
 
 	var schema AccountSchema
-	_ = r.FindOneAndUpdate(ctx, query, update).Decode(&schema)
+	_ = r.FindOneAndUpdate(ctx, query, update)
+
+	_ = r.FindOne(ctx, query).Decode(&schema)
 
 	return schema.toAccountModel()
 }

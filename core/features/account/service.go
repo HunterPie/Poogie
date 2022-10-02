@@ -8,6 +8,9 @@ import (
 	"github.com/Haato3o/poogie/core/crypto"
 	"github.com/Haato3o/poogie/core/email"
 	"github.com/Haato3o/poogie/core/persistence/account"
+	"github.com/Haato3o/poogie/core/persistence/bucket"
+	"github.com/Haato3o/poogie/core/persistence/supporter"
+	"github.com/Haato3o/poogie/core/utils"
 	"github.com/Haato3o/poogie/pkg/log"
 	"github.com/google/uuid"
 )
@@ -15,6 +18,7 @@ import (
 const (
 	DefaultAvatarUri       = "https://cdn.hunterpie.com/avatars/default.png"
 	VerificationUri        = "https://api.hunterpie.com/v1/account/verify/"
+	CDNAvatarsUri          = "https://cdn.hunterpie.com/avatars/"
 	VerificationEmailTitle = "HunterPie - Account Verification"
 )
 
@@ -30,10 +34,12 @@ var (
 
 type AccountService struct {
 	repository             account.IAccountRepository
+	supporterRepository    supporter.ISupporterRepository
 	cryptoService          crypto.ICryptographyService
 	hashService            crypto.IHashService
 	verificationRepository account.IAccountVerificationRepository
 	emailService           email.IEmailService
+	avatarStorage          bucket.IBucket
 }
 
 func (s *AccountService) VerifyAccount(ctx context.Context, token string) (bool, error) {
@@ -77,6 +83,8 @@ func (s *AccountService) CreateNewAccount(
 
 	hashedPassword := s.hashService.Hash(data.Password)
 
+	isSupporter := s.supporterRepository.ExistsSupporter(ctx, data.Email)
+
 	model, err := s.repository.Create(ctx, account.AccountModel{
 		Username:                   data.Username,
 		Password:                   hashedPassword,
@@ -85,7 +93,7 @@ func (s *AccountService) CreateNewAccount(
 		AvatarUri:                  DefaultAvatarUri,
 		Badges:                     make([]account.AccountBadgesModel, 0),
 		HuntStatisticsSummaryModel: make([]account.HuntStatisticsSummaryModel, 0),
-		IsSupporter:                false,
+		IsSupporter:                isSupporter,
 		CreatedAt:                  time.Now(),
 		UpdatedAt:                  time.Now(),
 		LastSessionAt:              time.Now(),
@@ -132,6 +140,16 @@ func (s *AccountService) GetAccountById(ctx context.Context, userId string) (acc
 	return user, nil
 }
 
-func (s *AccountService) UpdateAvatar(ctx context.Context, userId string, data AvatarUpdateRequest) account.AccountModel {
-	return s.repository.UpdateAvatar(ctx, userId, data.AvatarUrl)
+func (s *AccountService) UpdateAvatar(ctx context.Context, userId string, avatar []byte) (account.AccountModel, error) {
+	fileName := utils.NewRandomString() + ".png"
+
+	ok, err := s.avatarStorage.Upload(fileName, avatar)
+
+	if !ok || err != nil {
+		return account.AccountModel{}, ErrUnknownError
+	}
+
+	account := s.repository.UpdateAvatar(ctx, userId, CDNAvatarsUri+fileName)
+
+	return account, nil
 }

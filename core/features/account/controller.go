@@ -1,11 +1,16 @@
 package account
 
 import (
+	"bytes"
+	"io"
+
 	"github.com/Haato3o/poogie/core/features/common"
 	"github.com/Haato3o/poogie/core/utils"
 	"github.com/Haato3o/poogie/pkg/http"
 	"github.com/gin-gonic/gin"
 )
+
+const MAX_AVATAR_SIZE = 3500000
 
 type AccountController struct {
 	service *AccountService
@@ -100,4 +105,37 @@ func (c *AccountController) GetMyUserHandler(ctx *gin.Context) {
 	response.Email, _ = c.service.cryptoService.Decrypt(response.Email)
 
 	http.Ok(ctx, response)
+}
+
+func (c *AccountController) UploadAvatar(ctx *gin.Context) {
+	userId := utils.ExtractUserId(ctx)
+
+	file, headers, err := ctx.Request.FormFile("file")
+
+	if err != nil {
+		http.BadRequest(ctx, common.ErrInvalidImage)
+		return
+	}
+
+	if headers.Size > MAX_AVATAR_SIZE {
+		http.TooLarge(ctx, common.ErrAvatarSizeTooLarge)
+		return
+	}
+
+	var buffer bytes.Buffer
+	_, err = io.Copy(&buffer, file)
+
+	if err != nil {
+		http.InternalServerError(ctx)
+		return
+	}
+
+	account, err := c.service.UpdateAvatar(ctx, userId, buffer.Bytes())
+
+	if err != nil {
+		http.BadRequest(ctx, common.ErrAvatarUploadFail)
+		return
+	}
+
+	http.Ok(ctx, toUserAccountResponse(account))
 }

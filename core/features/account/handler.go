@@ -2,6 +2,7 @@ package account
 
 import (
 	"github.com/Haato3o/poogie/core/middlewares"
+	"github.com/Haato3o/poogie/pkg/aws"
 	"github.com/Haato3o/poogie/pkg/crypto"
 	"github.com/Haato3o/poogie/pkg/jwt"
 	"github.com/Haato3o/poogie/pkg/server"
@@ -25,6 +26,7 @@ func (*AccountHandler) GetVersion() int {
 func (*AccountHandler) Load(router *gin.RouterGroup, server *server.Server) error {
 	service := AccountService{
 		repository:             server.Database.GetAccountRepository(),
+		supporterRepository:    server.Database.GetSupporterRepository(),
 		cryptoService:          crypto.NewCryptoService(server.Config.CryptoKey, server.Config.CryptoSalt),
 		hashService:            crypto.NewHashService(server.Config.HashSalt),
 		verificationRepository: server.Database.GetAccountVerificationRepository(),
@@ -32,6 +34,7 @@ func (*AccountHandler) Load(router *gin.RouterGroup, server *server.Server) erro
 			server.Config.PoogieEmail,
 			server.Config.PoogiePassword,
 		),
+		avatarStorage: aws.New(server.Config, "avatars/", ""),
 	}
 	controller := AccountController{
 		service: &service,
@@ -54,7 +57,7 @@ func (*AccountHandler) Load(router *gin.RouterGroup, server *server.Server) erro
 
 	userRouter.GET("/me", controller.GetMyUserHandler)
 	userRouter.GET("/:userId", controller.GetUserHandler)
-
+	userRouter.POST("/avatar/upload", controller.UploadAvatar)
 	return nil
 }
 

@@ -12,4 +12,7 @@ const (
 	ErrInvalidWebhook      = "INVALID_WEBHOOK"
 	ErrInvalidSessionToken = "INVALID_SESSION_TOKEN"
 	ErrUnverifiedAccount   = "UNVERIFIED_ACCOUNT"
+	ErrInvalidImage        = "INVALID_IMAGE"
+	ErrAvatarUploadFail    = "FAILED_TO_UPDATE_AVATAR"
+	ErrAvatarSizeTooLarge  = "AVATAR_SIZE_TOO_LARGE"
 )
