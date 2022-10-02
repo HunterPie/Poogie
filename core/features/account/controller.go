@@ -117,7 +117,10 @@ func (c *AccountController) UploadAvatar(ctx *gin.Context) {
 		return
 	}
 
-	if headers.Size > 3000000
+	if headers.Size > MAX_AVATAR_SIZE {
+		http.TooLarge(ctx, common.ErrAvatarSizeTooLarge)
+		return
+	}
 
 	var buffer bytes.Buffer
 	_, err = io.Copy(&buffer, file)
