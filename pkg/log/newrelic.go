@@ -7,7 +7,7 @@ import (
 )
 
 const ENDPOINT = "https://log-api.newrelic.com/log/v1?Api-Key="
-const BUFFER_SIZE = 5
+const BUFFER_SIZE = 100
 
 var (
 	NewRelicLogger *NewRelicHeadlessLogger
@@ -22,13 +22,12 @@ type NewRelicLogMessage struct {
 }
 
 type NewRelicHeadlessLogger struct {
-	apiKey  string
-	buffer  []NewRelicLogMessage
-	channel chan int
+	apiKey string
+	buffer []NewRelicLogMessage
 }
 
 func NewLogger(apiKey string) {
-	NewRelicLogger = &NewRelicHeadlessLogger{apiKey: apiKey, channel: make(chan int, 1)}
+	NewRelicLogger = &NewRelicHeadlessLogger{apiKey: apiKey}
 
 	Info("initialized NewRelic headless client")
 }
@@ -47,13 +46,6 @@ func (l *NewRelicHeadlessLogger) Error(message string, err error, ctx []*LogCont
 		Context: ctx,
 		Level:   "error",
 	})
-}
-
-func (l *NewRelicHeadlessLogger) sendAsync(request *http.Request) {
-	client := &http.Client{}
-	client.Do(request)
-
-	l.channel <- 0
 }
 
 func (l *NewRelicHeadlessLogger) send(message NewRelicLogMessage) {
@@ -76,7 +68,8 @@ func (l *NewRelicHeadlessLogger) send(message NewRelicLogMessage) {
 			Error("failed to flush log buffer", err)
 		}
 
-		go l.sendAsync(req)
+		client := &http.Client{}
+		client.Do(req)
 
 		l.buffer = make([]NewRelicLogMessage, 0)
 	}
