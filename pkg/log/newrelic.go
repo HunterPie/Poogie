@@ -7,13 +7,14 @@ import (
 )
 
 const ENDPOINT = "https://log-api.newrelic.com/log/v1?Api-Key="
-const BUFFER_SIZE = 50
+const BUFFER_SIZE = 5
 
 var (
 	NewRelicLogger *NewRelicHeadlessLogger
 )
 
 type NewRelicLogMessage struct {
+	App     string        `json:"app"`
 	Message string        `json:"message"`
 	Error   string        `json:"error,omitempty"`
 	Context []*LogContext `json:"context,omitempty"`
@@ -47,10 +48,19 @@ func (l *NewRelicHeadlessLogger) Error(message string, err error, ctx []*LogCont
 	})
 }
 
+func sendAsync(request *http.Request, ch chan int) {
+	client := &http.Client{}
+	client.Do(request)
+
+	ch <- 0
+}
+
 func (l *NewRelicHeadlessLogger) send(message NewRelicLogMessage) {
 	if l.apiKey == "" {
 		return
 	}
+
+	message.App = "poogie-api:prod"
 
 	l.buffer = append(l.buffer, message)
 
@@ -65,9 +75,8 @@ func (l *NewRelicHeadlessLogger) send(message NewRelicLogMessage) {
 			Error("failed to flush log buffer", err)
 		}
 
-		client := &http.Client{}
-
-		go client.Do(req)
+		ch := make(chan int, 1)
+		go sendAsync(req, ch)
 
 		l.buffer = make([]NewRelicLogMessage, 0)
 	}
