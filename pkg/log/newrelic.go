@@ -4,11 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
-	"runtime"
-	"strconv"
-	"strings"
 	"time"
 )
 
@@ -55,17 +51,6 @@ func (l *NewRelicHeadlessLogger) Error(message string, err error, ctx []*LogCont
 	})
 }
 
-func goid() int {
-	var buf [64]byte
-	n := runtime.Stack(buf[:], false)
-	idField := strings.Fields(strings.TrimPrefix(string(buf[:n]), "goroutine "))[0]
-	id, err := strconv.Atoi(idField)
-	if err != nil {
-		panic(fmt.Sprintf("cannot get goroutine id: %v", err))
-	}
-	return id
-}
-
 func (l *NewRelicHeadlessLogger) send(message NewRelicLogMessage) {
 	if l.apiKey == "" {
 		return
@@ -73,19 +58,14 @@ func (l *NewRelicHeadlessLogger) send(message NewRelicLogMessage) {
 
 	message.App = "poogie-api:prod"
 
-	println("current goroutine:", goid())
 	l.queue <- message
 }
 
 func (l *NewRelicHeadlessLogger) queueListener() {
 	buffer := make([]NewRelicLogMessage, 0)
-	println("current goroutine main listener:", goid())
 
 	for message := range l.queue {
-		println("current goroutine listener:", goid())
 		buffer = append(buffer, message)
-
-		println("num of goroutines:", runtime.NumGoroutine())
 
 		if len(buffer) >= BUFFER_SIZE {
 			var payloadBuffer bytes.Buffer
