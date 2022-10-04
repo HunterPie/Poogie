@@ -2,8 +2,10 @@ package log
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"net/http"
+	"time"
 )
 
 const ENDPOINT = "https://log-api.newrelic.com/log/v1?Api-Key="
@@ -62,26 +64,29 @@ func (l *NewRelicHeadlessLogger) send(message NewRelicLogMessage) {
 func (l *NewRelicHeadlessLogger) queueListener() {
 	buffer := make([]NewRelicLogMessage, 0)
 
-	for {
-		select {
-		case message := <-l.queue:
-			buffer = append(buffer, message)
+	for message := range l.queue {
+		buffer = append(buffer, message)
 
-			if len(buffer) >= BUFFER_SIZE {
-				var payloadBuffer bytes.Buffer
-				encoder := json.NewEncoder(&payloadBuffer)
-				encoder.Encode(buffer)
+		if len(buffer) >= BUFFER_SIZE {
+			var payloadBuffer bytes.Buffer
+			encoder := json.NewEncoder(&payloadBuffer)
+			encoder.Encode(buffer)
 
-				req, err := http.NewRequest(http.MethodPost, ENDPOINT+l.apiKey, &payloadBuffer)
+			sendThroughHttp(ENDPOINT+l.apiKey, &payloadBuffer)
 
-				if err != nil {
-					Error("failed to flush log buffer", err)
-				}
-
-				http.DefaultClient.Do(req)
-
-				buffer = make([]NewRelicLogMessage, 0)
-			}
+			buffer = make([]NewRelicLogMessage, 0)
 		}
 	}
+}
+
+func sendThroughHttp(endpoint string, buffer *bytes.Buffer) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, buffer)
+
+	if err != nil {
+		Error("failed to flush log buffer", err)
+	}
+
+	http.DefaultClient.Do(req)
 }

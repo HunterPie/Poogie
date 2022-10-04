@@ -2,8 +2,10 @@ package services
 
 import (
 	"bytes"
+	"context"
 	"mime/multipart"
 	"net/http"
+	"time"
 )
 
 type DiscordWebhookService struct {
@@ -27,7 +29,9 @@ func (s *DiscordWebhookService) Send(data string) {
 
 	part.Write([]byte(data))
 
-	req, err := http.NewRequest(http.MethodPost, s.endpoint, &buffer)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, s.endpoint, &buffer)
 
 	if err != nil {
 		return
@@ -36,5 +40,5 @@ func (s *DiscordWebhookService) Send(data string) {
 	req.Header.Add("Content-Type", multi.FormDataContentType())
 	client := http.DefaultClient
 
-	client.Do(req)
+	go client.Do(req)
 }
