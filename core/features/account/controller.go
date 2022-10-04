@@ -59,7 +59,7 @@ func (c *AccountController) CreateNewAccountHandler(ctx *gin.Context) {
 		return
 	}
 
-	http.Ok(ctx, toAccountResponse(account))
+	http.Ok(ctx, toMyAccountResponse(account))
 }
 
 func (c *AccountController) VerifyAccount(ctx *gin.Context) {
@@ -100,7 +100,7 @@ func (c *AccountController) GetMyUserHandler(ctx *gin.Context) {
 
 	account, _ := c.service.repository.GetById(ctx, userId)
 
-	response := toAccountResponse(account)
+	response := toMyAccountResponse(account)
 
 	response.Email, _ = c.service.cryptoService.Decrypt(response.Email)
 
@@ -137,5 +137,5 @@ func (c *AccountController) UploadAvatar(ctx *gin.Context) {
 		return
 	}
 
-	http.Ok(ctx, toUserAccountResponse(account))
+	http.Ok(ctx, toMyAccountResponse(account))
 }
