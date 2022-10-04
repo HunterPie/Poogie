@@ -17,6 +17,7 @@ func NewDiscordWebhookService(endpoint string) *DiscordWebhookService {
 func (s *DiscordWebhookService) Send(data string) {
 	var buffer bytes.Buffer
 	multi := multipart.NewWriter(&buffer)
+	defer multi.Close()
 
 	part, err := multi.CreateFormFile("files[0]", "data.txt")
 
@@ -26,8 +27,6 @@ func (s *DiscordWebhookService) Send(data string) {
 
 	part.Write([]byte(data))
 
-	multi.Close()
-
 	req, err := http.NewRequest(http.MethodPost, s.endpoint, &buffer)
 
 	if err != nil {
@@ -35,7 +34,8 @@ func (s *DiscordWebhookService) Send(data string) {
 	}
 
 	req.Header.Add("Content-Type", multi.FormDataContentType())
-	client := &http.Client{}
+	client := http.DefaultClient
 
-	go client.Do(req)
+	client.Do(req)
+	req.Response.Body.Close()
 }
