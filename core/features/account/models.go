@@ -55,7 +55,7 @@ func toUserAccountResponse(account account.AccountModel) UserAccountResponse {
 	}
 }
 
-func toAccountResponse(account account.AccountModel) MyAccountResponse {
+func toMyAccountResponse(account account.AccountModel) MyAccountResponse {
 	return MyAccountResponse{
 		Username:    account.Username,
 		Email:       account.Email,

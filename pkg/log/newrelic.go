@@ -23,11 +23,12 @@ type NewRelicLogMessage struct {
 
 type NewRelicHeadlessLogger struct {
 	apiKey string
-	buffer []NewRelicLogMessage
+	queue  chan NewRelicLogMessage
 }
 
 func NewLogger(apiKey string) {
-	NewRelicLogger = &NewRelicHeadlessLogger{apiKey: apiKey}
+	NewRelicLogger = &NewRelicHeadlessLogger{apiKey: apiKey, queue: make(chan NewRelicLogMessage, BUFFER_SIZE+1)}
+	go NewRelicLogger.queueListener()
 
 	Info("initialized NewRelic headless client")
 }
@@ -55,28 +56,32 @@ func (l *NewRelicHeadlessLogger) send(message NewRelicLogMessage) {
 
 	message.App = "poogie-api:prod"
 
-	l.buffer = append(l.buffer, message)
+	l.queue <- message
+}
 
-	if len(l.buffer) > BUFFER_SIZE {
-		var buffer bytes.Buffer
-		encoder := json.NewEncoder(&buffer)
-		encoder.Encode(l.buffer)
+func (l *NewRelicHeadlessLogger) queueListener() {
+	buffer := make([]NewRelicLogMessage, 0)
 
-		req, err := http.NewRequest(http.MethodPost, ENDPOINT+l.apiKey, &buffer)
+	for {
+		select {
+		case message := <-l.queue:
+			buffer = append(buffer, message)
 
-		if err != nil {
-			Error("failed to flush log buffer", err)
-		}
+			if len(buffer) >= BUFFER_SIZE {
+				var payloadBuffer bytes.Buffer
+				encoder := json.NewEncoder(&payloadBuffer)
+				encoder.Encode(buffer)
 
-<<<<<<< Updated upstream
-		client := &http.Client{}
-		client.Do(req)
+				req, err := http.NewRequest(http.MethodPost, ENDPOINT+l.apiKey, &payloadBuffer)
 
-		l.buffer = make([]NewRelicLogMessage, 0)
-=======
+				if err != nil {
+					Error("failed to flush log buffer", err)
+				}
+
+				http.DefaultClient.Do(req)
+
 				buffer = make([]NewRelicLogMessage, 0)
 			}
 		}
->>>>>>> Stashed changes
 	}
 }

@@ -1,6 +1,7 @@
 package aws
 
 import (
+	"bytes"
 	"errors"
 	"strings"
 	"time"
@@ -30,31 +31,24 @@ type S3Bucket struct {
 	fileType   string
 }
 
-func New(configuration *config.ApiConfiguration, prefix, fileType string) bucket.IBucket {
-	session, err := session.NewSession(&aws.Config{
-		Region: aws.String(AWS_REGION),
-		Credentials: credentials.NewStaticCredentials(
-			configuration.AwsAccountKey,
-			configuration.AwsAccountSecret,
-			"",
-		),
-		Endpoint: aws.String(AWS_ENDPOINT),
-	})
+// Upload implements bucket.IBucket
+func (b *S3Bucket) Upload(name string, data []byte) (bool, error) {
+	uploader := s3manager.NewUploaderWithClient(b.connection)
+	buffer := bytes.NewReader(data)
+
+	input := s3manager.UploadInput{
+		Bucket: aws.String(b.bucket),
+		Key:    aws.String(b.prefix + name + b.fileType),
+		Body:   buffer,
+		ACL:    aws.String("public-read"),
+	}
+	_, err := uploader.Upload(&input)
 
 	if err != nil {
-		// TODO: Add logging
+		return false, err
 	}
 
-	cache := memcache.New(5 * time.Hour)
-	service := s3.New(session)
-
-	return &S3Bucket{
-		connection: service,
-		cache:      cache,
-		bucket:     configuration.AwsBucketName,
-		prefix:     prefix,
-		fileType:   fileType,
-	}
+	return true, nil
 }
 
 // FindBy implements bucket.IBucket
@@ -123,6 +117,33 @@ func (b *S3Bucket) FindMostRecent() (string, error) {
 	b.cache.Set(MOST_RECENT_KEY, fileName)
 
 	return fileName, nil
+}
+
+func New(configuration *config.ApiConfiguration, prefix, fileType string) bucket.IBucket {
+	session, err := session.NewSession(&aws.Config{
+		Region: aws.String(AWS_REGION),
+		Credentials: credentials.NewStaticCredentials(
+			configuration.AwsAccountKey,
+			configuration.AwsAccountSecret,
+			"",
+		),
+		Endpoint: aws.String(AWS_ENDPOINT),
+	})
+
+	if err != nil {
+		// TODO: Add logging
+	}
+
+	cache := memcache.New(5 * time.Hour)
+	service := s3.New(session)
+
+	return &S3Bucket{
+		connection: service,
+		cache:      cache,
+		bucket:     configuration.AwsBucketName,
+		prefix:     prefix,
+		fileType:   fileType,
+	}
 }
 
 func removeSuffixAndPrefix(str, suffix, prefix string) string {
