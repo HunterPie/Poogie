@@ -37,5 +37,5 @@ func (s *DiscordWebhookService) Send(data string) {
 	req.Header.Add("Content-Type", multi.FormDataContentType())
 	client := &http.Client{}
 
-	go client.Do(req)
+	client.Do(req)
 }

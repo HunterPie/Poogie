@@ -68,9 +68,15 @@ func (l *NewRelicHeadlessLogger) send(message NewRelicLogMessage) {
 			Error("failed to flush log buffer", err)
 		}
 
+<<<<<<< Updated upstream
 		client := &http.Client{}
 		client.Do(req)
 
 		l.buffer = make([]NewRelicLogMessage, 0)
+=======
+				buffer = make([]NewRelicLogMessage, 0)
+			}
+		}
+>>>>>>> Stashed changes
 	}
 }
