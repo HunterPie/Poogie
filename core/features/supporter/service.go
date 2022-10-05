@@ -3,7 +3,9 @@ package supporter
 import (
 	"context"
 
+	"github.com/Haato3o/poogie/core/crypto"
 	"github.com/Haato3o/poogie/core/email"
+	"github.com/Haato3o/poogie/core/persistence/account"
 	"github.com/Haato3o/poogie/core/persistence/supporter"
 	"github.com/Haato3o/poogie/core/services"
 )
@@ -13,9 +15,11 @@ const (
 )
 
 type SupporterService struct {
-	repository   supporter.ISupporterRepository
-	emailService email.IEmailService
-	tokenService services.TokenService
+	repository        supporter.ISupporterRepository
+	emailService      email.IEmailService
+	tokenService      services.TokenService
+	accountRepository account.IAccountRepository
+	cryptoService     crypto.ICryptographyService
 }
 
 func (s *SupporterService) CreateNewSupporter(ctx context.Context, email string) supporter.SupporterModel {
@@ -23,14 +27,30 @@ func (s *SupporterService) CreateNewSupporter(ctx context.Context, email string)
 	var model supporter.SupporterModel
 
 	if !s.repository.ExistsSupporter(ctx, email) {
+		encryptedEmail := s.cryptoService.Encrypt(email)
+		userAccount, _ := s.accountRepository.GetByEmail(ctx, encryptedEmail)
+
+		userId := "TOKEN_NOT_ACTIVATED"
+
+		if userAccount.Id != "" {
+			s.accountRepository.UpdateSupporterStatus(ctx, userAccount.Id, true)
+			userId = userAccount.Id
+		}
+
 		token := s.tokenService.Generate()
 		model = s.repository.Insert(ctx, supporter.SupporterModel{
+			UserId:   userId,
 			Email:    email,
 			Token:    token,
 			IsActive: true,
 		})
+
 	} else {
 		model = s.repository.RenewBy(ctx, email)
+
+		if model.UserId != "TOKEN_NOT_ACTIVATED" {
+			s.accountRepository.UpdateSupporterStatus(ctx, model.UserId, true)
+		}
 	}
 
 	s.emailService.Send(
@@ -47,7 +67,13 @@ func (s *SupporterService) CreateNewSupporter(ctx context.Context, email string)
 }
 
 func (s *SupporterService) RevokeExistingSupporter(ctx context.Context, email string) supporter.SupporterModel {
-	return s.repository.RevokeBy(ctx, email)
+	model := s.repository.RevokeBy(ctx, email)
+
+	if model.UserId != "TOKEN_NOT_ACTIVATED" {
+		s.accountRepository.UpdateSupporterStatus(ctx, model.UserId, false)
+	}
+
+	return model
 }
 
 func (s *SupporterService) ExistsSupporterByToken(ctx context.Context, token string) bool {

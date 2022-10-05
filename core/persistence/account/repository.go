@@ -11,6 +11,7 @@ var (
 
 type IAccountRepository interface {
 	Create(ctx context.Context, model AccountModel) (AccountModel, error)
+	UpdateSupporterStatus(ctx context.Context, userId string, isSupporter bool) (AccountModel, error)
 	AreCredentialsValid(ctx context.Context, email, password string) bool
 	GetByEmail(ctx context.Context, email string) (AccountModel, error)
 	GetById(ctx context.Context, userId string) (AccountModel, error)

@@ -105,6 +105,10 @@ func (s *AccountService) CreateNewAccount(
 		return model, err
 	}
 
+	if isSupporter {
+		s.supporterRepository.AssociateToUser(ctx, data.Email, model.Id)
+	}
+
 	model.Email, _ = s.cryptoService.Decrypt(model.Email)
 
 	verificationToken := uuid.NewString()
