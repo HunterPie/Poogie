@@ -110,6 +110,39 @@ type AccountMongoRepository struct {
 	*mongo.Collection
 }
 
+// UpdateSupporterStatus implements account.IAccountRepository
+func (r *AccountMongoRepository) UpdateSupporterStatus(ctx context.Context, userId string, isSupporter bool) (account.AccountModel, error) {
+	id, err := primitive.ObjectIDFromHex(userId)
+
+	if err != nil {
+		return account.AccountModel{}, ErrFailedToFindUser
+	}
+
+	query := bson.M{
+		"_id": id,
+	}
+
+	update := bson.M{
+		"$set": bson.M{
+			"is_supporter": isSupporter,
+			"updated_at":   time.Now(),
+		},
+	}
+
+	r.FindOneAndUpdate(ctx, query, update)
+
+	var schema AccountSchema
+	err = r.FindOne(ctx, query).Decode(&schema)
+
+	if err != nil {
+		return account.AccountModel{}, ErrFailedToFindUser
+	}
+
+	schema.IsSupporter = isSupporter
+
+	return schema.toAccountModel(), nil
+}
+
 // VerifyAccount implements account.IAccountRepository
 func (r *AccountMongoRepository) VerifyAccount(ctx context.Context, userId string) {
 	id, _ := primitive.ObjectIDFromHex(userId)

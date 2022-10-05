@@ -22,8 +22,15 @@ type SupporterSchema struct {
 }
 
 func toSupporterSchema(model supporter.SupporterModel) SupporterSchema {
+
+	id := model.UserId
+
+	if id == "" {
+		id = SUPPORTER_TOKEN_NOT_ACTIVATED
+	}
+
 	return SupporterSchema{
-		UserId:    SUPPORTER_TOKEN_NOT_ACTIVATED,
+		UserId:    id,
 		Email:     model.Email,
 		Token:     model.Token,
 		IsActive:  model.IsActive,
@@ -34,6 +41,7 @@ func toSupporterSchema(model supporter.SupporterModel) SupporterSchema {
 
 func (s SupporterSchema) toSupporterModel() supporter.SupporterModel {
 	return supporter.SupporterModel{
+		UserId:   s.UserId,
 		Email:    s.Email,
 		Token:    s.Token,
 		IsActive: s.IsActive,
@@ -42,6 +50,39 @@ func (s SupporterSchema) toSupporterModel() supporter.SupporterModel {
 
 type SupporterMongoRepository struct {
 	*mongo.Collection
+}
+
+// AssociateToUser implements supporter.ISupporterRepository
+func (r *SupporterMongoRepository) AssociateToUser(ctx context.Context, email string, userId string) supporter.SupporterModel {
+	query := bson.M{
+		"email": email,
+	}
+
+	update := bson.M{
+		"$set": bson.M{
+			"user_id":    userId,
+			"updated_at": time.Now(),
+		},
+	}
+
+	var document SupporterSchema
+	r.FindOneAndUpdate(ctx, query, update).Decode(document)
+
+	document.UserId = userId
+
+	return document.toSupporterModel()
+}
+
+// FindByAssociation implements supporter.ISupporterRepository
+func (r *SupporterMongoRepository) FindByAssociation(ctx context.Context, userId string) supporter.SupporterModel {
+	query := bson.M{
+		"user_id": userId,
+	}
+
+	var document SupporterSchema
+	r.FindOne(ctx, query).Decode(&document)
+
+	return document.toSupporterModel()
 }
 
 // RenewBy implements supporter.ISupporterRepository
