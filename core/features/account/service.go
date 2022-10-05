@@ -150,6 +150,6 @@ func (s *AccountService) UpdateAvatar(ctx context.Context, userId string, avatar
 	}
 
 	account := s.repository.UpdateAvatar(ctx, userId, CDNAvatarsUri+fileName)
-
+	account.Email, _ = s.cryptoService.Decrypt(account.Email)
 	return account, nil
 }
