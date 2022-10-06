@@ -12,6 +12,7 @@ import (
 	"github.com/Haato3o/poogie/core/persistence/supporter"
 	"github.com/Haato3o/poogie/core/utils"
 	"github.com/Haato3o/poogie/pkg/log"
+	goaway "github.com/TwiN/go-away"
 	"github.com/google/uuid"
 )
 
@@ -30,6 +31,7 @@ var (
 	ErrUnverifiedAccount             = errors.New("account is not verified")
 	ErrAlreadyActivated              = errors.New("account already verified")
 	ErrUnknownError                  = errors.New("something went wrong")
+	ErrInvalidUsername               = errors.New("username is invalid")
 )
 
 type AccountService struct {
@@ -71,6 +73,10 @@ func (s *AccountService) CreateNewAccount(
 	data AccountCreationRequest,
 	clientId string,
 ) (account.AccountModel, error) {
+	if goaway.IsProfane(data.Username) {
+		return account.AccountModel{}, ErrInvalidUsername
+	}
+
 	encryptedEmail := s.cryptoService.Encrypt(data.Email)
 
 	if s.repository.IsEmailTaken(ctx, encryptedEmail) {

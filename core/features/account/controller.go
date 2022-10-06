@@ -54,6 +54,9 @@ func (c *AccountController) CreateNewAccountHandler(ctx *gin.Context) {
 	if err == ErrAccountWithEmailAlreadyExists || err == ErrUsernameTaken {
 		http.Conflict(ctx, err.Error(), common.ErrUserAlreadyExists)
 		return
+	} else if err == ErrInvalidUsername {
+		http.BadRequest(ctx, common.ErrInvalidUsername)
+		return
 	} else if err != nil {
 		http.InternalServerError(ctx)
 		return

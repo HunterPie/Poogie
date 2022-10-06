@@ -26,6 +26,7 @@ require (
 )
 
 require (
+	github.com/TwiN/go-away v1.6.8
 	github.com/aws/aws-sdk-go v1.44.87
 	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-contrib/sse v0.1.0 // indirect
