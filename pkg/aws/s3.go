@@ -2,7 +2,9 @@ package aws
 
 import (
 	"bytes"
+	"context"
 	"errors"
+	"io"
 	"strings"
 	"time"
 
@@ -29,6 +31,36 @@ type S3Bucket struct {
 	bucket     string
 	prefix     string
 	fileType   string
+}
+
+// DownloadToStream implements bucket.IBucket
+func (b *S3Bucket) DownloadToStream(ctx context.Context, name string) (bucket.StreamedFile, error) {
+	input := s3.GetObjectInput{
+		Bucket: aws.String(b.bucket),
+		Key:    aws.String(b.prefix + name + b.fileType),
+	}
+
+	response, err := b.connection.GetObjectWithContext(ctx, &input)
+
+	return bucket.StreamedFile{
+		Reader: response.Body,
+		Size:   *response.ContentLength,
+		Type:   *response.ContentType,
+	}, err
+}
+
+// UploadFromStream implements bucket.IBucket
+func (b *S3Bucket) UploadFromStream(ctx context.Context, name string, file io.Reader) (bool, error) {
+	uploader := s3manager.NewUploaderWithClient(b.connection)
+	input := s3manager.UploadInput{
+		Bucket: aws.String(b.bucket),
+		Key:    aws.String(b.prefix + name + b.fileType),
+		Body:   file,
+	}
+
+	_, err := uploader.UploadWithContext(ctx, &input)
+
+	return err == nil, err
 }
 
 // Upload implements bucket.IBucket
