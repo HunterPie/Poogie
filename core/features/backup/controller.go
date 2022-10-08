@@ -14,6 +14,27 @@ type BackupController struct {
 	*BackupService
 }
 
+func (c *BackupController) DeleteBackupFileHandler(ctx *gin.Context) {
+	userId := utils.ExtractUserId(ctx)
+	backupId := ctx.Param("backupId")
+
+	if backupId == "" {
+		http.ElementNotFound(ctx)
+		return
+	}
+
+	success := c.DeleteBackupFile(ctx, userId, backupId)
+
+	if !success {
+		http.ElementNotFound(ctx)
+		return
+	}
+
+	http.Ok(ctx, BackupDeleteResponse{
+		BackupId: backupId,
+	})
+}
+
 func (c *BackupController) GetAllBackupsHandler(ctx *gin.Context) {
 	userId := utils.ExtractUserId(ctx)
 

@@ -46,6 +46,7 @@ func (*BackupHandler) Load(router *gin.RouterGroup, server *server.Server) error
 	router.POST("/backup/upload/:gameId", controller.UploadBackupHandler)
 	router.GET("/backup/:backupId", controller.DownloadBackupHandler)
 	router.GET("/backup", controller.GetAllBackupsHandler)
+	router.DELETE("/backup/:backupId", controller.DeleteBackupFileHandler)
 
 	return nil
 }
