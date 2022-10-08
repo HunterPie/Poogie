@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/Haato3o/poogie/core/persistence/account"
+	"github.com/Haato3o/poogie/core/persistence/backups"
 	"github.com/Haato3o/poogie/core/persistence/database"
 	"github.com/Haato3o/poogie/core/persistence/notifications"
 	"github.com/Haato3o/poogie/core/persistence/supporter"
@@ -18,6 +19,11 @@ import (
 type MongoDatabase struct {
 	*mongo.Client
 	*mongo.Database
+}
+
+// GetBackupsRepository implements database.IDatabase
+func (m *MongoDatabase) GetBackupsRepository() backups.IBackupRepository {
+	return NewBackupsRepository(m.Database)
 }
 
 // GetAccountVerificationRepository implements database.IDatabase

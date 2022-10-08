@@ -5,6 +5,7 @@ import (
 
 	"github.com/Haato3o/poogie/core/config"
 	"github.com/Haato3o/poogie/core/features/account"
+	"github.com/Haato3o/poogie/core/features/backup"
 	"github.com/Haato3o/poogie/core/features/health"
 	"github.com/Haato3o/poogie/core/features/notifications"
 	"github.com/Haato3o/poogie/core/features/report"
@@ -28,6 +29,7 @@ func getServices() []server.IRegisterableService {
 		session.New(),
 		account.New(),
 		notifications.New(),
+		backup.New(),
 	}
 }
 

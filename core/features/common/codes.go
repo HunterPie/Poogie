@@ -15,4 +15,6 @@ const (
 	ErrInvalidImage        = "INVALID_IMAGE"
 	ErrAvatarUploadFail    = "FAILED_TO_UPDATE_AVATAR"
 	ErrAvatarSizeTooLarge  = "AVATAR_SIZE_TOO_LARGE"
+	ErrInvalidBackupUpload = "INVALID_BACKUP_UPLOAD"
+	ErrBackupSizeTooLarge  = "BACKUP_TOO_LARGE"
 )
