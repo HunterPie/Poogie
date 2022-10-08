@@ -23,11 +23,14 @@ func (*BackupHandler) GetVersion() int {
 
 // Load implements server.IRegisterableService
 func (*BackupHandler) Load(router *gin.RouterGroup, server *server.Server) error {
-	service := BackupService{
-		bucket: aws.New(server.Config, "backups/", ".zip"),
-	}
+	service := (&BackupService{
+		repository:        server.Database.GetBackupsRepository(),
+		accountRepository: server.Database.GetAccountRepository(),
+		bucket:            aws.New(server.Config, "backups/", ".zip"),
+		DeleteJobQueue:    make(chan DeleteQueueMessage, 1000),
+	}).Initialize()
 	controller := BackupController{
-		BackupService: &service,
+		BackupService: service,
 	}
 
 	authMiddleware := middlewares.NewUserTransformMiddleware(
@@ -40,8 +43,9 @@ func (*BackupHandler) Load(router *gin.RouterGroup, server *server.Server) error
 
 	router.Use(authMiddleware.TokenToUserIdTransform)
 
-	router.POST("/backup/upload", controller.UploadBackupHandler)
+	router.POST("/backup/upload/:gameId", controller.UploadBackupHandler)
 	router.GET("/backup/:backupId", controller.DownloadBackupHandler)
+	router.GET("/backup", controller.GetAllBackupsHandler)
 
 	return nil
 }

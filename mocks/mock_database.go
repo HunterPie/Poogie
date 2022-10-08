@@ -9,6 +9,7 @@ import (
 	reflect "reflect"
 
 	account "github.com/Haato3o/poogie/core/persistence/account"
+	backups "github.com/Haato3o/poogie/core/persistence/backups"
 	notifications "github.com/Haato3o/poogie/core/persistence/notifications"
 	supporter "github.com/Haato3o/poogie/core/persistence/supporter"
 	gomock "github.com/golang/mock/gomock"
@@ -63,6 +64,20 @@ func (m *MockIDatabase) GetAccountVerificationRepository() account.IAccountVerif
 func (mr *MockIDatabaseMockRecorder) GetAccountVerificationRepository() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAccountVerificationRepository", reflect.TypeOf((*MockIDatabase)(nil).GetAccountVerificationRepository))
+}
+
+// GetBackupsRepository mocks base method.
+func (m *MockIDatabase) GetBackupsRepository() backups.IBackupRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetBackupsRepository")
+	ret0, _ := ret[0].(backups.IBackupRepository)
+	return ret0
+}
+
+// GetBackupsRepository indicates an expected call of GetBackupsRepository.
+func (mr *MockIDatabaseMockRecorder) GetBackupsRepository() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBackupsRepository", reflect.TypeOf((*MockIDatabase)(nil).GetBackupsRepository))
 }
 
 // GetNotificationsRepository mocks base method.

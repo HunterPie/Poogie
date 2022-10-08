@@ -33,6 +33,16 @@ type S3Bucket struct {
 	fileType   string
 }
 
+// Delete implements bucket.IBucket
+func (b *S3Bucket) Delete(ctx context.Context, name string) {
+	input := s3.DeleteObjectInput{
+		Bucket: aws.String(b.bucket),
+		Key:    aws.String(b.prefix + name + b.fileType),
+	}
+
+	b.connection.DeleteObjectWithContext(ctx, &input)
+}
+
 // DownloadToStream implements bucket.IBucket
 func (b *S3Bucket) DownloadToStream(ctx context.Context, name string) (bucket.StreamedFile, error) {
 	input := s3.GetObjectInput{
