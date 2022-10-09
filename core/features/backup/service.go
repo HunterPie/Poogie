@@ -78,7 +78,7 @@ func (s *BackupService) UploadBackupFile(ctx context.Context, request BackupUplo
 
 		for _, backup := range backups {
 			s.DeleteJobQueue <- DeleteQueueMessage{
-				BackupId: backupId,
+				BackupId: backup.Id,
 				UserId:   request.UserId,
 			}
 			log.Info("queueing delete of backup: " + backup.Id + " for userId: " + request.UserId)
