@@ -20,6 +20,10 @@ type UserBackupDetailsResponse struct {
 	Backups  []BackupResponse `json:"backups"`
 }
 
+type BackupDeleteResponse struct {
+	BackupId string `json:"id"`
+}
+
 type BackupResponse struct {
 	Id         string    `json:"id"`
 	Size       int64     `json:"size"`
