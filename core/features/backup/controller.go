@@ -65,12 +65,20 @@ func (c *BackupController) UploadBackupHandler(ctx *gin.Context) {
 		return
 	}
 
-	response, _ := c.UploadBackupFile(ctx, BackupUploadRequest{
+	response, err := c.UploadBackupFile(ctx, BackupUploadRequest{
 		UserId: userId,
 		Stream: file,
 		Size:   headers.Size,
 		Game:   backups.GameType(gameId),
 	})
+
+	if err == ErrBackupRateLimitReached {
+		http.TooManyRequests(ctx, common.ErrBackupRateLimit)
+		return
+	} else if err != nil {
+		http.InternalServerError(ctx)
+		return
+	}
 
 	http.Ok(ctx, response)
 }

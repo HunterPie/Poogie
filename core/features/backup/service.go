@@ -16,7 +16,8 @@ import (
 )
 
 var (
-	ErrFailedToUploadBackup = errors.New("failed to upload backup file")
+	ErrFailedToUploadBackup   = errors.New("failed to upload backup file")
+	ErrBackupRateLimitReached = errors.New("backup rate limit for this account has been reached")
 )
 
 type BackupUploadRequest struct {
@@ -48,6 +49,13 @@ func (s *BackupService) UploadBackupFile(ctx context.Context, request BackupUplo
 
 	_, err := s.bucket.UploadFromStream(ctx, buildUserStorageName(request.UserId, backupId), request.Stream)
 
+	userBackups := s.repository.FindAllByUserId(ctx, request.UserId)
+	user, _ := s.accountRepository.GetById(ctx, request.UserId)
+
+	if len(userBackups) > 0 && time.Since(userBackups[0].UploadedAt) < user.GetBackupRateLimit() {
+		return BackupResponse{}, ErrBackupRateLimitReached
+	}
+
 	if err != nil {
 		return BackupResponse{}, ErrFailedToUploadBackup
 	}
@@ -64,19 +72,17 @@ func (s *BackupService) UploadBackupFile(ctx context.Context, request BackupUplo
 	}
 
 	// Delete existing backups if there are more than the maximum for that account
-	user, _ := s.accountRepository.GetById(ctx, request.UserId)
+
 	maxBackups := domain.MAX_BACKUPS
 
 	if user.IsSupporter {
 		maxBackups = domain.MAX_BACKUPS_SUPPORTER
 	}
 
-	backups := s.repository.FindAllByUserId(ctx, request.UserId)
+	if len(userBackups) > maxBackups {
+		userBackups = userBackups[maxBackups:]
 
-	if len(backups) > maxBackups {
-		backups = backups[maxBackups:]
-
-		for _, backup := range backups {
+		for _, backup := range userBackups {
 			s.DeleteJobQueue <- DeleteQueueMessage{
 				BackupId: backup.Id,
 				UserId:   request.UserId,
