@@ -39,6 +39,10 @@ func Conflict(c *gin.Context, message string, code string) {
 	c.JSON(http.StatusConflict, gin.H{"error": message, "code": code})
 }
 
+func TooManyRequests(c *gin.Context, code string) {
+	c.JSON(http.StatusTooManyRequests, gin.H{"error": "too many requests", "code": code})
+}
+
 func Ok[T any](c *gin.Context, body T) {
 	c.JSON(http.StatusOK, body)
 }

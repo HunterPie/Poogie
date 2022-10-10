@@ -17,4 +17,5 @@ const (
 	ErrAvatarSizeTooLarge  = "AVATAR_SIZE_TOO_LARGE"
 	ErrInvalidBackupUpload = "INVALID_BACKUP_UPLOAD"
 	ErrBackupSizeTooLarge  = "BACKUP_TOO_LARGE"
+	ErrBackupRateLimit     = "BACKUP_RATE_LIMIT"
 )

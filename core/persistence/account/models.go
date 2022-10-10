@@ -1,6 +1,10 @@
 package account
 
-import "time"
+import (
+	"time"
+
+	"github.com/Haato3o/poogie/core/domain"
+)
 
 type AccountBadgesModel struct {
 	Id        string
@@ -29,4 +33,12 @@ type AccountModel struct {
 	LastSessionAt              time.Time
 	IsArchived                 bool
 	IsActive                   bool
+}
+
+func (m AccountModel) GetBackupRateLimit() time.Duration {
+	if m.IsSupporter {
+		return domain.BACKUP_RATE_LIMIT_SUPPORTER
+	}
+
+	return domain.BACKUP_RATE_LIMIT
 }
