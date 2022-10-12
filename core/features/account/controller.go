@@ -5,8 +5,10 @@ import (
 	"io"
 
 	"github.com/Haato3o/poogie/core/features/common"
+	"github.com/Haato3o/poogie/core/tracing"
 	"github.com/Haato3o/poogie/core/utils"
 	"github.com/Haato3o/poogie/pkg/http"
+	"github.com/Haato3o/poogie/pkg/log"
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,6 +19,8 @@ type AccountController struct {
 }
 
 func (c *AccountController) CreateNewAccountHandler(ctx *gin.Context) {
+	txn := tracing.FromContext(ctx)
+
 	var request AccountCreationRequest
 	ok, handled := utils.DeserializeBody(ctx, &request, func(t *AccountCreationRequest) (bool, bool) {
 
@@ -52,6 +56,7 @@ func (c *AccountController) CreateNewAccountHandler(ctx *gin.Context) {
 	account, err := c.service.CreateNewAccount(ctx, request, clientId)
 
 	if err == ErrAccountWithEmailAlreadyExists || err == ErrUsernameTaken {
+		txn.AddProperty("username", request.Username)
 		http.Conflict(ctx, err.Error(), common.ErrUserAlreadyExists)
 		return
 	} else if err == ErrInvalidUsername {
@@ -62,6 +67,7 @@ func (c *AccountController) CreateNewAccountHandler(ctx *gin.Context) {
 		return
 	}
 
+	log.Info("created account with username: " + request.Username)
 	http.Ok(ctx, toMyAccountResponse(account))
 }
 
