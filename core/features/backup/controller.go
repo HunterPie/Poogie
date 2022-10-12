@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const SAVE_SIZE_LIMIT int64 = 53_000_000
+const SAVE_SIZE_LIMIT int64 = 120_000_000
 
 type BackupController struct {
 	*BackupService
