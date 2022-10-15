@@ -17,4 +17,5 @@ type IDatabase interface {
 	GetNotificationsRepository() notifications.INotificationRepository
 	GetAccountVerificationRepository() account.IAccountVerificationRepository
 	GetBackupsRepository() backups.IBackupRepository
+	GetAccountResetRepository() account.IAccountResetRepository
 }

@@ -20,11 +20,11 @@ func TooLarge(c *gin.Context, code string) {
 }
 
 func ElementNotFound(c *gin.Context) {
-	c.JSON(http.StatusNotFound, gin.H{"error": ELEMENT_NOT_FOUND_MESSAGE})
+	c.JSON(http.StatusNotFound, gin.H{"error": ELEMENT_NOT_FOUND_MESSAGE, "code": common.ErrNotFound})
 }
 
 func InternalServerError(c *gin.Context) {
-	c.JSON(http.StatusInternalServerError, gin.H{"error": INTERNAL_ERROR_MESSAGE})
+	c.JSON(http.StatusInternalServerError, gin.H{"error": INTERNAL_ERROR_MESSAGE, "code": common.ErrInternalError})
 }
 
 func Unauthorized(c *gin.Context) {

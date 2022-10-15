@@ -21,6 +21,11 @@ type MongoDatabase struct {
 	*mongo.Database
 }
 
+// GetAccountResetRepository implements database.IDatabase
+func (m *MongoDatabase) GetAccountResetRepository() account.IAccountResetRepository {
+	return NewResetRepository(m.Database)
+}
+
 // GetBackupsRepository implements database.IDatabase
 func (m *MongoDatabase) GetBackupsRepository() backups.IBackupRepository {
 	return NewBackupsRepository(m.Database)

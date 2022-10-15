@@ -52,6 +52,20 @@ func (mr *MockIDatabaseMockRecorder) GetAccountRepository() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAccountRepository", reflect.TypeOf((*MockIDatabase)(nil).GetAccountRepository))
 }
 
+// GetAccountResetRepository mocks base method.
+func (m *MockIDatabase) GetAccountResetRepository() account.IAccountResetRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAccountResetRepository")
+	ret0, _ := ret[0].(account.IAccountResetRepository)
+	return ret0
+}
+
+// GetAccountResetRepository indicates an expected call of GetAccountResetRepository.
+func (mr *MockIDatabaseMockRecorder) GetAccountResetRepository() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAccountResetRepository", reflect.TypeOf((*MockIDatabase)(nil).GetAccountResetRepository))
+}
+
 // GetAccountVerificationRepository mocks base method.
 func (m *MockIDatabase) GetAccountVerificationRepository() account.IAccountVerificationRepository {
 	m.ctrl.T.Helper()

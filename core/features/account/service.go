@@ -3,6 +3,7 @@ package account
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/Haato3o/poogie/core/crypto"
@@ -32,16 +33,20 @@ var (
 	ErrAlreadyActivated              = errors.New("account already verified")
 	ErrUnknownError                  = errors.New("something went wrong")
 	ErrInvalidUsername               = errors.New("username is invalid")
+	ErrEmailNotFound                 = errors.New("no email was found")
+	ErrInvalidResetCode              = errors.New("reset code was not valid")
 )
 
 type AccountService struct {
 	repository             account.IAccountRepository
+	resetRepository        account.IAccountResetRepository
 	supporterRepository    supporter.ISupporterRepository
 	cryptoService          crypto.ICryptographyService
 	hashService            crypto.IHashService
 	verificationRepository account.IAccountVerificationRepository
 	emailService           email.IEmailService
 	avatarStorage          bucket.IBucket
+	cryptoRandom           crypto.ICryptoRandomService
 }
 
 func (s *AccountService) VerifyAccount(ctx context.Context, token string) (bool, error) {
@@ -162,4 +167,60 @@ func (s *AccountService) UpdateAvatar(ctx context.Context, userId string, avatar
 	account := s.repository.UpdateAvatar(ctx, userId, CDNAvatarsUri+fileName)
 	account.Email, _ = s.cryptoService.Decrypt(account.Email)
 	return account, nil
+}
+
+func (s *AccountService) RequestPasswordReset(ctx context.Context, email string) (bool, error) {
+	encryptedEmail := s.cryptoService.Encrypt(email)
+	account, err := s.repository.GetByEmail(ctx, encryptedEmail)
+
+	if err != nil {
+		return false, ErrEmailNotFound
+	}
+
+	code, err := s.cryptoRandom.UInt64()
+
+	if err != nil {
+		return false, ErrUnknownError
+	}
+
+	codeString := fmt.Sprintf("%06d", code%999_999)
+	s.resetRepository.Create(ctx, codeString, email)
+
+	_, err = s.emailService.Send(
+		"HunterPie - Password reset",
+		[]string{email},
+		"./templates/reset_password_email.html",
+		struct {
+			Username  string
+			ResetCode string
+		}{
+			Username:  account.Username,
+			ResetCode: codeString,
+		},
+	)
+
+	if err != nil {
+		return false, ErrUnknownError
+	}
+
+	return true, nil
+}
+
+func (s *AccountService) ChangePassword(ctx context.Context, email string, code string, newPassword string) (bool, error) {
+	encryptedEmail := s.cryptoService.Encrypt(email)
+	hashedPassword := s.hashService.Hash(newPassword)
+
+	isValid := s.resetRepository.IsTokenValid(ctx, code, email)
+
+	if !isValid {
+		return false, ErrInvalidResetCode
+	}
+
+	account, _ := s.repository.GetByEmail(ctx, encryptedEmail)
+
+	s.repository.UpdatePassword(ctx, account.Id, hashedPassword)
+
+	s.resetRepository.RevokeBy(ctx, code, email)
+
+	return true, nil
 }

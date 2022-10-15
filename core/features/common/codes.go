@@ -18,4 +18,7 @@ const (
 	ErrInvalidBackupUpload = "INVALID_BACKUP_UPLOAD"
 	ErrBackupSizeTooLarge  = "BACKUP_TOO_LARGE"
 	ErrBackupRateLimit     = "BACKUP_RATE_LIMIT"
+	ErrNotFound            = "NOT_FOUND"
+	ErrInternalError       = "INTERNAL_ERROR"
+	ErrInvalidResetCode    = "INVALID_PASSWORD_RESET_CODE"
 )

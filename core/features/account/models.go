@@ -79,3 +79,21 @@ func toBadgesResponse(badges []account.AccountBadgesModel) []AccountBadgeRespons
 
 	return badgesResponse
 }
+
+type PasswordResetRequest struct {
+	Email string `json:"email"`
+}
+
+type PasswordResetResponse struct {
+	Success bool `json:"success"`
+}
+
+type ChangePasswordRequest struct {
+	Email       string `json:"email"`
+	Code        string `json:"code"`
+	NewPassword string `json:"new_password"`
+}
+
+type ChangePasswordResponse struct {
+	Success bool `json:"success"`
+}

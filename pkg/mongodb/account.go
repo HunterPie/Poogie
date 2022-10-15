@@ -210,7 +210,7 @@ func (r *AccountMongoRepository) GetByEmail(ctx context.Context, email string) (
 	err := r.FindOne(ctx, query).Decode(&schema)
 
 	if err != nil {
-		return account.AccountModel{}, ErrFailedToFindUser
+		return account.AccountModel{}, account.ErrFailedToFindAccount
 	}
 
 	return schema.toAccountModel(), nil
@@ -291,8 +291,24 @@ func (r *AccountMongoRepository) UpdateAvatar(ctx context.Context, userId string
 }
 
 // UpdatePassword implements account.IAccountRepository
-func (*AccountMongoRepository) UpdatePassword(ctx context.Context, userId string, password string) account.AccountModel {
-	panic("unimplemented")
+func (r *AccountMongoRepository) UpdatePassword(ctx context.Context, userId string, password string) account.AccountModel {
+	id, _ := primitive.ObjectIDFromHex(userId)
+
+	query := bson.M{
+		"_id": id,
+	}
+
+	update := bson.M{
+		"$set": bson.M{
+			"password":   password,
+			"updated_at": time.Now(),
+		},
+	}
+
+	var schema AccountSchema
+	_ = r.FindOneAndUpdate(ctx, query, update).Decode(&schema)
+
+	return schema.toAccountModel()
 }
 
 func NewAccountRepository(db *mongo.Database) *AccountMongoRepository {
