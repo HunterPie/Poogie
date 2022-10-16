@@ -7,7 +7,6 @@ all: build
 install: go-get
 
 run:
-	version-bump patch && \
 	go run main.go
 
 build:
@@ -29,3 +28,6 @@ go-get:
 coverage:
 	go test -v ./... -coverprofile cover.out
 	go tool cover -func cover.out
+
+bump:
+	version-bump patch
