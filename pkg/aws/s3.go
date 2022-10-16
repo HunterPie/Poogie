@@ -11,6 +11,8 @@ import (
 	"github.com/Haato3o/poogie/core/cache"
 	"github.com/Haato3o/poogie/core/config"
 	"github.com/Haato3o/poogie/core/persistence/bucket"
+	"github.com/Haato3o/poogie/core/tracing"
+	"github.com/Haato3o/poogie/pkg/log"
 	"github.com/Haato3o/poogie/pkg/memcache"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -35,6 +37,10 @@ type S3Bucket struct {
 
 // Delete implements bucket.IBucket
 func (b *S3Bucket) Delete(ctx context.Context, name string) {
+	txn := tracing.FromContext(ctx)
+	segment := txn.StartSegment("S3Bucket.Delete")
+	defer segment.End()
+
 	input := s3.DeleteObjectInput{
 		Bucket: aws.String(b.bucket),
 		Key:    aws.String(b.prefix + name + b.fileType),
@@ -45,6 +51,10 @@ func (b *S3Bucket) Delete(ctx context.Context, name string) {
 
 // DownloadToStream implements bucket.IBucket
 func (b *S3Bucket) DownloadToStream(ctx context.Context, name string) (bucket.StreamedFile, error) {
+	txn := tracing.FromContext(ctx)
+	segment := txn.StartSegment("S3Bucket.DownloadToStream")
+	defer segment.End()
+
 	input := s3.GetObjectInput{
 		Bucket: aws.String(b.bucket),
 		Key:    aws.String(b.prefix + name + b.fileType),
@@ -61,6 +71,10 @@ func (b *S3Bucket) DownloadToStream(ctx context.Context, name string) (bucket.St
 
 // UploadFromStream implements bucket.IBucket
 func (b *S3Bucket) UploadFromStream(ctx context.Context, name string, file io.Reader) (bool, error) {
+	txn := tracing.FromContext(ctx)
+	segment := txn.StartSegment("S3Bucket.UploadFromStream")
+	defer segment.End()
+
 	uploader := s3manager.NewUploaderWithClient(b.connection)
 	input := s3manager.UploadInput{
 		Bucket: aws.String(b.bucket),
@@ -173,7 +187,8 @@ func New(configuration *config.ApiConfiguration, prefix, fileType string) bucket
 	})
 
 	if err != nil {
-		// TODO: Add logging
+		log.Error("failed to create S3 instance", err)
+		return nil
 	}
 
 	cache := memcache.New(5 * time.Hour)

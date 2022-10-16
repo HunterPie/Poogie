@@ -1,0 +1,8 @@
+[docker]
+enabled = true
+directories = [ '.' ]
+
+[go]
+enabled = true
+directories = [ "./metadata" ]
+exclude_files = []

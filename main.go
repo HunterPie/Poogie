@@ -12,6 +12,8 @@ import (
 	"github.com/Haato3o/poogie/core/features/session"
 	"github.com/Haato3o/poogie/core/features/supporter"
 	"github.com/Haato3o/poogie/core/features/version"
+	"github.com/Haato3o/poogie/core/services"
+	"github.com/Haato3o/poogie/metadata"
 	"github.com/Haato3o/poogie/pkg/log"
 	"github.com/Haato3o/poogie/pkg/server"
 	"github.com/joho/godotenv"
@@ -57,9 +59,12 @@ func main() {
 
 	log.NewLogger(apiConfig.NewRelicLicenseKey)
 
+	webhookService := services.NewDiscordWebhookService(apiConfig.DeployWebhook)
+
 	instance, err := server.New(&apiConfig)
 
 	if err != nil {
+		log.Error("failed to instantiate server", err)
 		panic("failed to instantiate new server")
 	}
 
@@ -70,7 +75,11 @@ func main() {
 		panic(err)
 	}
 
-	log.Info(fmt.Sprintf("Starting up server at %s", apiConfig.HttpAddress))
+	log.Info(fmt.Sprintf("Starting up server at %s. Version %s", apiConfig.HttpAddress, metadata.Version))
+
+	webhookService.SendEmbed(config.DeployEmbed)
 
 	instance.Start()
+
+	webhookService.SendEmbed(config.DiedEmbed)
 }
