@@ -152,6 +152,7 @@ func (c *AccountController) UploadAvatarHandler(ctx *gin.Context) {
 func (c *AccountController) RequestPasswordResetHandler(ctx *gin.Context) {
 	var request PasswordResetRequest
 	ok, handled := utils.DeserializeBody(ctx, &request, func(t *PasswordResetRequest) (bool, bool) {
+
 		if !utils.ValidateEmail(t.Email) {
 			http.BadRequest(ctx, common.ErrInvalidEmail)
 			return false, true
@@ -174,8 +175,7 @@ func (c *AccountController) RequestPasswordResetHandler(ctx *gin.Context) {
 	if err == ErrEmailNotFound {
 		http.ElementNotFound(ctx)
 		return
-	}
-	if err != nil {
+	} else if err != nil {
 		http.InternalServerError(ctx)
 		return
 	}
@@ -219,6 +219,9 @@ func (c *AccountController) ChangePasswordHandler(ctx *gin.Context) {
 
 	if err == ErrInvalidResetCode {
 		http.BadRequest(ctx, common.ErrInvalidResetCode)
+		return
+	} else if err == ErrAccountDoesNotExist {
+		http.BadRequest(ctx, common.ErrInvalidEmail)
 		return
 	} else if err != nil {
 		http.InternalServerError(ctx)

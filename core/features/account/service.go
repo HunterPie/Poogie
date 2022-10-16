@@ -216,7 +216,11 @@ func (s *AccountService) ChangePassword(ctx context.Context, email string, code 
 		return false, ErrInvalidResetCode
 	}
 
-	account, _ := s.repository.GetByEmail(ctx, encryptedEmail)
+	account, err := s.repository.GetByEmail(ctx, encryptedEmail)
+
+	if err != nil {
+		return false, ErrAccountDoesNotExist
+	}
 
 	s.repository.UpdatePassword(ctx, account.Id, hashedPassword)
 
