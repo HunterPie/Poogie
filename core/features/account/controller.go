@@ -71,7 +71,7 @@ func (c *AccountController) CreateNewAccountHandler(ctx *gin.Context) {
 	http.Ok(ctx, toMyAccountResponse(account))
 }
 
-func (c *AccountController) VerifyAccount(ctx *gin.Context) {
+func (c *AccountController) VerifyAccountHandler(ctx *gin.Context) {
 	token := ctx.Param("token")
 
 	_, err := c.service.VerifyAccount(ctx, token)
@@ -116,7 +116,7 @@ func (c *AccountController) GetMyUserHandler(ctx *gin.Context) {
 	http.Ok(ctx, response)
 }
 
-func (c *AccountController) UploadAvatar(ctx *gin.Context) {
+func (c *AccountController) UploadAvatarHandler(ctx *gin.Context) {
 	userId := utils.ExtractUserId(ctx)
 
 	file, headers, err := ctx.Request.FormFile("file")
@@ -147,4 +147,88 @@ func (c *AccountController) UploadAvatar(ctx *gin.Context) {
 	}
 
 	http.Ok(ctx, toMyAccountResponse(account))
+}
+
+func (c *AccountController) RequestPasswordResetHandler(ctx *gin.Context) {
+	var request PasswordResetRequest
+	ok, handled := utils.DeserializeBody(ctx, &request, func(t *PasswordResetRequest) (bool, bool) {
+
+		if !utils.ValidateEmail(t.Email) {
+			http.BadRequest(ctx, common.ErrInvalidEmail)
+			return false, true
+		}
+
+		return true, false
+	})
+
+	if handled {
+		return
+	}
+
+	if !ok {
+		http.BadRequest(ctx, common.ErrInvalidPayload)
+		return
+	}
+
+	sentEmail, err := c.service.RequestPasswordReset(ctx, request.Email)
+
+	if err == ErrEmailNotFound {
+		http.ElementNotFound(ctx)
+		return
+	} else if err != nil {
+		http.InternalServerError(ctx)
+		return
+	}
+
+	http.Ok(ctx, PasswordResetResponse{
+		Success: sentEmail,
+	})
+}
+
+func (c *AccountController) ChangePasswordHandler(ctx *gin.Context) {
+	var request ChangePasswordRequest
+	ok, handled := utils.DeserializeBody(ctx, &request, func(t *ChangePasswordRequest) (bool, bool) {
+		if !utils.ValidateEmail(t.Email) {
+			http.BadRequest(ctx, common.ErrInvalidEmail)
+			return false, true
+		}
+
+		if len(request.NewPassword) < 8 {
+			http.BadRequest(ctx, common.ErrInvalidPassword)
+			return false, true
+		}
+
+		return true, false
+	})
+
+	if handled {
+		return
+	}
+
+	if !ok {
+		http.BadRequest(ctx, common.ErrInvalidPayload)
+		return
+	}
+
+	changedPassword, err := c.service.ChangePassword(
+		ctx,
+		request.Email,
+		request.Code,
+		request.NewPassword,
+	)
+
+	if err == ErrInvalidResetCode {
+		http.BadRequest(ctx, common.ErrInvalidResetCode)
+		return
+	} else if err == ErrAccountDoesNotExist {
+		http.BadRequest(ctx, common.ErrInvalidEmail)
+		return
+	} else if err != nil {
+		http.InternalServerError(ctx)
+		return
+	}
+
+	http.Ok(ctx, ChangePasswordResponse{
+		Success: changedPassword,
+	})
 }

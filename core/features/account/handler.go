@@ -26,22 +26,23 @@ func (*AccountHandler) GetVersion() int {
 func (*AccountHandler) Load(router *gin.RouterGroup, server *server.Server) error {
 	service := AccountService{
 		repository:             server.Database.GetAccountRepository(),
+		resetRepository:        server.Database.GetAccountResetRepository(),
 		supporterRepository:    server.Database.GetSupporterRepository(),
 		cryptoService:          crypto.NewCryptoService(server.Config.CryptoKey, server.Config.CryptoSalt),
 		hashService:            crypto.NewHashService(server.Config.HashSalt),
 		verificationRepository: server.Database.GetAccountVerificationRepository(),
-		emailService: smtp.New(
-			server.Config.PoogieEmail,
-			server.Config.PoogiePassword,
-		),
-		avatarStorage: aws.New(server.Config, "avatars/", ""),
+		emailService:           smtp.New(server.Config.PoogieEmail, server.Config.PoogiePassword),
+		avatarStorage:          aws.New(server.Config, "avatars/", ""),
+		cryptoRandom:           crypto.NewCryptoRandomService(),
 	}
 	controller := AccountController{
 		service: &service,
 	}
 
 	router.POST("/account", controller.CreateNewAccountHandler)
-	router.GET("/account/verify/:token", controller.VerifyAccount)
+	router.GET("/account/verify/:token", controller.VerifyAccountHandler)
+	router.POST("/account/password/reset", controller.RequestPasswordResetHandler)
+	router.POST("/account/password", controller.ChangePasswordHandler)
 
 	userRouter := router.Group("/user")
 
@@ -57,7 +58,7 @@ func (*AccountHandler) Load(router *gin.RouterGroup, server *server.Server) erro
 
 	userRouter.GET("/me", controller.GetMyUserHandler)
 	userRouter.GET("/:userId", controller.GetUserHandler)
-	userRouter.POST("/avatar/upload", controller.UploadAvatar)
+	userRouter.POST("/avatar/upload", controller.UploadAvatarHandler)
 	return nil
 }
 

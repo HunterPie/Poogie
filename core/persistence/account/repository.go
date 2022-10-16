@@ -7,6 +7,7 @@ import (
 
 var (
 	ErrFailedToCreateAccount = errors.New("failed to create new account")
+	ErrFailedToFindAccount   = errors.New("failed to find account")
 )
 
 type IAccountRepository interface {
@@ -42,4 +43,10 @@ type IAccountHuntStatisticSummaryRepository interface {
 type IAccountVerificationRepository interface {
 	Create(ctx context.Context, token string, account string)
 	Find(ctx context.Context, token string) (string, error)
+}
+
+type IAccountResetRepository interface {
+	Create(ctx context.Context, code string, email string)
+	IsTokenValid(ctx context.Context, code string, email string) bool
+	RevokeBy(ctx context.Context, code string, email string)
 }
