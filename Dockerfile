@@ -1,6 +1,6 @@
-org.opencontainers.image.version = 1.6.0
-
 FROM golang:1.19.0-alpine3.15 as builder
+
+LABEL org.opencontainers.image.version = 1.6.1
 
 RUN apk add -U --no-cache ca-certificates curl git make gcc g++ libc-dev musl-dev
 
