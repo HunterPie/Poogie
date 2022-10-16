@@ -7,6 +7,7 @@ all: build
 install: go-get
 
 run:
+	version-bump patch && \
 	go run main.go
 
 build:
