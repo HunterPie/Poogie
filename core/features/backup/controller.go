@@ -50,6 +50,13 @@ func (c *BackupController) UploadBackupHandler(ctx *gin.Context) {
 		http.BadRequest(ctx, common.ErrInvalidBackupUpload)
 		return
 	}
+	userId := utils.ExtractUserId(ctx)
+
+	if !c.CanUserUpload(ctx, userId) {
+
+		http.TooManyRequests(ctx, common.ErrBackupRateLimit)
+		return
+	}
 
 	file, headers, err := ctx.Request.FormFile("file")
 
@@ -57,8 +64,6 @@ func (c *BackupController) UploadBackupHandler(ctx *gin.Context) {
 		http.TooLarge(ctx, common.ErrBackupSizeTooLarge)
 		return
 	}
-
-	userId := utils.ExtractUserId(ctx)
 
 	if err != nil {
 		http.BadRequest(ctx, common.ErrInvalidBackupUpload)
@@ -72,10 +77,7 @@ func (c *BackupController) UploadBackupHandler(ctx *gin.Context) {
 		Game:   backups.GameType(gameId),
 	})
 
-	if err == ErrBackupRateLimitReached {
-		http.TooManyRequests(ctx, common.ErrBackupRateLimit)
-		return
-	} else if err != nil {
+	if err != nil {
 		http.InternalServerError(ctx)
 		return
 	}

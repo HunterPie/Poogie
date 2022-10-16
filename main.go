@@ -60,6 +60,7 @@ func main() {
 	instance, err := server.New(&apiConfig)
 
 	if err != nil {
+		log.Error("failed to instantiate server", err)
 		panic("failed to instantiate new server")
 	}
 

@@ -44,6 +44,13 @@ func (s *BackupService) Initialize() *BackupService {
 	return s
 }
 
+func (s *BackupService) CanUserUpload(ctx context.Context, userId string) bool {
+	userBackups := s.repository.FindAllByUserId(ctx, userId)
+	user, _ := s.accountRepository.GetById(ctx, userId)
+
+	return !(len(userBackups) > 0 && time.Since(userBackups[0].UploadedAt) < user.GetBackupRateLimit())
+}
+
 func (s *BackupService) UploadBackupFile(ctx context.Context, request BackupUploadRequest) (BackupResponse, error) {
 	backupId := utils.NewRandomString()
 
@@ -51,10 +58,6 @@ func (s *BackupService) UploadBackupFile(ctx context.Context, request BackupUplo
 
 	userBackups := s.repository.FindAllByUserId(ctx, request.UserId)
 	user, _ := s.accountRepository.GetById(ctx, request.UserId)
-
-	if len(userBackups) > 0 && time.Since(userBackups[0].UploadedAt) < user.GetBackupRateLimit() {
-		return BackupResponse{}, ErrBackupRateLimitReached
-	}
 
 	if err != nil {
 		return BackupResponse{}, ErrFailedToUploadBackup
