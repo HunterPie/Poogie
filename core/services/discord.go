@@ -21,6 +21,11 @@ type DiscordEmbed struct {
 	Fields      []DiscordEmbedField `json:"fields"`
 }
 
+type DiscordWebhook struct {
+	Content string         `json:"content"`
+	Embeds  []DiscordEmbed `json:"embeds"`
+}
+
 type DiscordWebhookService struct {
 	endpoint string
 }
@@ -32,7 +37,7 @@ func NewDiscordWebhookService(endpoint string) *DiscordWebhookService {
 func (s *DiscordWebhookService) SendEmbed(embed DiscordEmbed) {
 	var buffer bytes.Buffer
 	encoder := json.NewEncoder(&buffer)
-	encoder.Encode(embed)
+	encoder.Encode(DiscordWebhook{Embeds: []DiscordEmbed{embed}})
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
