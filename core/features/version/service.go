@@ -18,9 +18,9 @@ func (s *VersionService) GetLatestFileVersion(ctx context.Context, supporterToke
 
 	switch isValidToken {
 	case true:
-		return s.alphaBucket.FindMostRecent()
+		return s.alphaBucket.FindMostRecent(ctx)
 	default:
-		return s.bucket.FindMostRecent()
+		return s.bucket.FindMostRecent(ctx)
 	}
 }
 
@@ -29,8 +29,8 @@ func (s *VersionService) GetFileByVersion(ctx context.Context, version, supporte
 
 	switch isValidToken {
 	case true:
-		return s.alphaBucket.FindBy(version)
+		return s.alphaBucket.FindBy(ctx, version)
 	default:
-		return s.bucket.FindBy(version)
+		return s.bucket.FindBy(ctx, version)
 	}
 }

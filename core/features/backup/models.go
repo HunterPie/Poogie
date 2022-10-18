@@ -14,6 +14,10 @@ const (
 	GAME_MONSTER_HUNTER_WORLD_ICON = "https://cdn.hunterpie.com/Static/monster-hunter-world-icon.png"
 )
 
+type CanUserUploadResponse struct {
+	CanUpload bool `json:"can_upload"`
+}
+
 type UserBackupDetailsResponse struct {
 	Count    int              `json:"count"`
 	MaxCount int              `json:"max_count"`

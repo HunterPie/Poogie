@@ -82,13 +82,19 @@ func (b *S3Bucket) UploadFromStream(ctx context.Context, name string, file io.Re
 		Body:   file,
 	}
 
-	_, err := uploader.UploadWithContext(ctx, &input)
+	_, err := uploader.UploadWithContext(ctx, &input, func(u *s3manager.Uploader) {
+		u.Concurrency = 10
+	})
 
 	return err == nil, err
 }
 
 // Upload implements bucket.IBucket
-func (b *S3Bucket) Upload(name string, data []byte) (bool, error) {
+func (b *S3Bucket) Upload(ctx context.Context, name string, data []byte) (bool, error) {
+	txn := tracing.FromContext(ctx)
+	segment := txn.StartSegment("S3Bucket.Upload")
+	defer segment.End()
+
 	uploader := s3manager.NewUploaderWithClient(b.connection)
 	buffer := bytes.NewReader(data)
 
@@ -98,7 +104,7 @@ func (b *S3Bucket) Upload(name string, data []byte) (bool, error) {
 		Body:   buffer,
 		ACL:    aws.String("public-read"),
 	}
-	_, err := uploader.Upload(&input)
+	_, err := uploader.UploadWithContext(ctx, &input)
 
 	if err != nil {
 		return false, err
@@ -108,7 +114,11 @@ func (b *S3Bucket) Upload(name string, data []byte) (bool, error) {
 }
 
 // FindBy implements bucket.IBucket
-func (b *S3Bucket) FindBy(name string) ([]byte, error) {
+func (b *S3Bucket) FindBy(ctx context.Context, name string) ([]byte, error) {
+	txn := tracing.FromContext(ctx)
+	segment := txn.StartSegment("S3Bucket.FindBy")
+	defer segment.End()
+
 	file, hasCachedFile := b.cache.Get(name)
 
 	if hasCachedFile {
@@ -124,8 +134,8 @@ func (b *S3Bucket) FindBy(name string) ([]byte, error) {
 
 	buffer := aws.NewWriteAtBuffer([]byte{})
 
-	_, err := downloader.Download(buffer, query, func(d *s3manager.Downloader) {
-		d.Concurrency = 4
+	_, err := downloader.DownloadWithContext(ctx, buffer, query, func(d *s3manager.Downloader) {
+		d.Concurrency = 10
 	})
 
 	if err != nil {
@@ -138,7 +148,11 @@ func (b *S3Bucket) FindBy(name string) ([]byte, error) {
 }
 
 // FindMostRecent implements bucket.IBucket
-func (b *S3Bucket) FindMostRecent() (string, error) {
+func (b *S3Bucket) FindMostRecent(ctx context.Context) (string, error) {
+	txn := tracing.FromContext(ctx)
+	segment := txn.StartSegment("S3Bucket.FindMostRecent")
+	defer segment.End()
+
 	name, hasCachedName := b.cache.Get(MOST_RECENT_KEY)
 
 	if hasCachedName {
@@ -150,7 +164,7 @@ func (b *S3Bucket) FindMostRecent() (string, error) {
 		Prefix: &b.prefix,
 	}
 
-	resp, err := b.connection.ListObjects(query)
+	resp, err := b.connection.ListObjectsWithContext(ctx, query)
 
 	if err != nil {
 		return "", err
