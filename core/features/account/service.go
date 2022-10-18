@@ -158,7 +158,7 @@ func (s *AccountService) GetAccountById(ctx context.Context, userId string) (acc
 func (s *AccountService) UpdateAvatar(ctx context.Context, userId string, avatar []byte) (account.AccountModel, error) {
 	fileName := utils.NewRandomString() + ".png"
 
-	ok, err := s.avatarStorage.Upload(fileName, avatar)
+	ok, err := s.avatarStorage.Upload(ctx, fileName, avatar)
 
 	if !ok || err != nil {
 		return account.AccountModel{}, ErrUnknownError

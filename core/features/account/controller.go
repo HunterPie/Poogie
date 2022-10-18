@@ -12,7 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const MAX_AVATAR_SIZE = 3500000
+const MAX_AVATAR_SIZE = 3_500_000
 
 type AccountController struct {
 	service *AccountService

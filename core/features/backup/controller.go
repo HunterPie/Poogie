@@ -103,3 +103,13 @@ func (c *BackupController) DownloadBackupHandler(ctx *gin.Context) {
 
 	ctx.DataFromReader(200, backup.Size, backup.Type, backup.Reader, nil)
 }
+
+func (c *BackupController) CanUserUploadHandler(ctx *gin.Context) {
+	userId := utils.ExtractUserId(ctx)
+
+	canUpload := c.CanUserUpload(ctx, userId)
+
+	http.Ok(ctx, CanUserUploadResponse{
+		CanUpload: canUpload,
+	})
+}
