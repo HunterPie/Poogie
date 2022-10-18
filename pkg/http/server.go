@@ -2,6 +2,7 @@ package http
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/Haato3o/poogie/core/config"
 	"github.com/Haato3o/poogie/core/middlewares"
@@ -40,8 +41,9 @@ func New(config *config.ApiConfiguration, isMonitoringEnabled bool) *HttpServer 
 	}
 
 	server := &http.Server{
-		Addr:    config.HttpAddress,
-		Handler: router,
+		Addr:        config.HttpAddress,
+		Handler:     router,
+		ReadTimeout: 30 * time.Second,
 	}
 
 	return &HttpServer{
