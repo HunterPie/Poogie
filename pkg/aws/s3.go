@@ -86,6 +86,8 @@ func (b *S3Bucket) UploadFromStream(ctx context.Context, name string, file io.Re
 		u.Concurrency = 10
 	})
 
+	log.Error("failed to upload to bucket", err)
+
 	return err == nil, err
 }
 
@@ -106,11 +108,9 @@ func (b *S3Bucket) Upload(ctx context.Context, name string, data []byte) (bool, 
 	}
 	_, err := uploader.UploadWithContext(ctx, &input)
 
-	if err != nil {
-		return false, err
-	}
+	log.Error("failed to upload to bucket", err)
 
-	return true, nil
+	return err == nil, err
 }
 
 // FindBy implements bucket.IBucket

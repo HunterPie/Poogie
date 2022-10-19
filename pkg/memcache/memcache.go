@@ -7,7 +7,7 @@ import (
 	gocache "github.com/patrickmn/go-cache"
 )
 
-const DEFAULT_DELETE_INTERVAL = 5 * time.Minute
+const DEFAULT_DELETE_INTERVAL = 30 * time.Minute
 
 type MemoryCache struct {
 	cache *gocache.Cache
