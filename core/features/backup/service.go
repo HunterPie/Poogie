@@ -82,8 +82,8 @@ func (s *BackupService) UploadBackupFile(ctx context.Context, request BackupUplo
 		maxBackups = domain.MAX_BACKUPS_SUPPORTER
 	}
 
-	if len(userBackups) > maxBackups {
-		userBackups = userBackups[maxBackups:]
+	if len(userBackups) >= maxBackups {
+		userBackups = userBackups[maxBackups-1:]
 
 		for _, backup := range userBackups {
 			s.DeleteJobQueue <- DeleteQueueMessage{
