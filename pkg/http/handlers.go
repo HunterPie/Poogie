@@ -7,6 +7,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func Timeout(c *gin.Context) {
+	c.JSON(http.StatusRequestTimeout, gin.H{"error": REQUEST_TIMEOUT, "code": common.ErrGeneric})
+}
+
 func NotFoundHandler(c *gin.Context) {
 	c.JSON(http.StatusNotFound, gin.H{"error": NOT_FOUND_MESSAGE})
 }

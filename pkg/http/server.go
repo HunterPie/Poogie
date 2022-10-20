@@ -27,6 +27,7 @@ func New(config *config.ApiConfiguration, isMonitoringEnabled bool) *HttpServer 
 
 	router := gin.New()
 	router.Use(cors.Default())
+	router.Use(middlewares.TimeoutMiddleware(Timeout))
 	router.Use(middlewares.TransactionMiddleware)
 
 	var tracer tracing.ITracingEngine
