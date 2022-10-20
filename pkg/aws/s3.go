@@ -86,7 +86,9 @@ func (b *S3Bucket) UploadFromStream(ctx context.Context, name string, file io.Re
 		u.Concurrency = 10
 	})
 
-	log.Error("failed to upload to bucket", err)
+	if err != nil {
+		log.Error("failed to upload to bucket", err)
+	}
 
 	return err == nil, err
 }
@@ -108,7 +110,9 @@ func (b *S3Bucket) Upload(ctx context.Context, name string, data []byte) (bool, 
 	}
 	_, err := uploader.UploadWithContext(ctx, &input)
 
-	log.Error("failed to upload to bucket", err)
+	if err != nil {
+		log.Error("failed to upload to bucket", err)
+	}
 
 	return err == nil, err
 }
