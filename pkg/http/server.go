@@ -41,9 +41,10 @@ func New(config *config.ApiConfiguration, isMonitoringEnabled bool) *HttpServer 
 	}
 
 	server := &http.Server{
-		Addr:        config.HttpAddress,
-		Handler:     router,
-		ReadTimeout: 30 * time.Second,
+		Addr:         config.HttpAddress,
+		Handler:      router,
+		ReadTimeout:  60 * time.Second,
+		WriteTimeout: 60 * time.Second,
 	}
 
 	return &HttpServer{
