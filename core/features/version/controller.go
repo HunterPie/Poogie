@@ -63,3 +63,9 @@ func (c *VersionController) GetBinaryByVersion(ctx *gin.Context) {
 
 	http.OkZip(ctx, binary)
 }
+
+func (c *VersionController) GetAllPatchNotes(ctx *gin.Context) {
+	patchNotes := c.service.GetPatchNotes(ctx)
+
+	http.Ok(ctx, models.ToAllPatchNotesResponses(patchNotes))
+}

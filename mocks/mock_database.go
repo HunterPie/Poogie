@@ -11,6 +11,7 @@ import (
 	account "github.com/Haato3o/poogie/core/persistence/account"
 	backups "github.com/Haato3o/poogie/core/persistence/backups"
 	notifications "github.com/Haato3o/poogie/core/persistence/notifications"
+	patches "github.com/Haato3o/poogie/core/persistence/patches"
 	supporter "github.com/Haato3o/poogie/core/persistence/supporter"
 	gomock "github.com/golang/mock/gomock"
 )
@@ -106,6 +107,20 @@ func (m *MockIDatabase) GetNotificationsRepository() notifications.INotification
 func (mr *MockIDatabaseMockRecorder) GetNotificationsRepository() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNotificationsRepository", reflect.TypeOf((*MockIDatabase)(nil).GetNotificationsRepository))
+}
+
+// GetPatchRepository mocks base method.
+func (m *MockIDatabase) GetPatchRepository() patches.IPatchRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPatchRepository")
+	ret0, _ := ret[0].(patches.IPatchRepository)
+	return ret0
+}
+
+// GetPatchRepository indicates an expected call of GetPatchRepository.
+func (mr *MockIDatabaseMockRecorder) GetPatchRepository() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPatchRepository", reflect.TypeOf((*MockIDatabase)(nil).GetPatchRepository))
 }
 
 // GetSessionRepository mocks base method.

@@ -8,6 +8,7 @@ import (
 	"github.com/Haato3o/poogie/core/persistence/backups"
 	"github.com/Haato3o/poogie/core/persistence/database"
 	"github.com/Haato3o/poogie/core/persistence/notifications"
+	"github.com/Haato3o/poogie/core/persistence/patches"
 	"github.com/Haato3o/poogie/core/persistence/supporter"
 	"github.com/newrelic/go-agent/v3/integrations/nrmongo"
 	"github.com/pkg/errors"
@@ -19,6 +20,11 @@ import (
 type MongoDatabase struct {
 	*mongo.Client
 	*mongo.Database
+}
+
+// GetPatchRepository implements database.IDatabase
+func (m *MongoDatabase) GetPatchRepository() patches.IPatchRepository {
+	return NewPatchRepository(m.Database)
 }
 
 // GetAccountResetRepository implements database.IDatabase

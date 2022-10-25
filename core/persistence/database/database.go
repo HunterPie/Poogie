@@ -6,6 +6,7 @@ import (
 	"github.com/Haato3o/poogie/core/persistence/account"
 	"github.com/Haato3o/poogie/core/persistence/backups"
 	"github.com/Haato3o/poogie/core/persistence/notifications"
+	"github.com/Haato3o/poogie/core/persistence/patches"
 	"github.com/Haato3o/poogie/core/persistence/supporter"
 )
 
@@ -18,4 +19,5 @@ type IDatabase interface {
 	GetAccountVerificationRepository() account.IAccountVerificationRepository
 	GetBackupsRepository() backups.IBackupRepository
 	GetAccountResetRepository() account.IAccountResetRepository
+	GetPatchRepository() patches.IPatchRepository
 }

@@ -51,7 +51,7 @@ type AccountSchema struct {
 }
 
 func toBadgeModels(badges []AccountBadgeSchema) []account.AccountBadgesModel {
-	var models = make([]account.AccountBadgesModel, len(badges))
+	var models = make([]account.AccountBadgesModel, 0)
 
 	for _, badge := range badges {
 		models = append(models, account.AccountBadgesModel{
