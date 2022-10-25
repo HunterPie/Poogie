@@ -24,6 +24,7 @@ func (*VersionHandler) Load(router *gin.RouterGroup, server *server.Server) erro
 		bucket:              aws.New(server.Config, "Releases/", ".zip"),
 		alphaBucket:         aws.New(server.Config, "Beta/", ".zip"),
 		supporterRepository: server.Database.GetSupporterRepository(),
+		patchRepository:     server.Database.GetPatchRepository(),
 	}
 
 	controller := VersionController{
@@ -33,6 +34,7 @@ func (*VersionHandler) Load(router *gin.RouterGroup, server *server.Server) erro
 	router.GET("/version", controller.GetLatestVersion)
 	router.GET("/version/latest", controller.GetLatestBinary)
 	router.GET("/version/:version", controller.GetBinaryByVersion)
+	router.GET("/patch/notes", controller.GetAllPatchNotes)
 
 	return nil
 }

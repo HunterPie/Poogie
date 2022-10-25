@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/Haato3o/poogie/core/persistence/bucket"
+	"github.com/Haato3o/poogie/core/persistence/patches"
 	"github.com/Haato3o/poogie/core/persistence/supporter"
 )
 
@@ -11,6 +12,7 @@ type VersionService struct {
 	bucket              bucket.IBucket
 	alphaBucket         bucket.IBucket
 	supporterRepository supporter.ISupporterRepository
+	patchRepository     patches.IPatchRepository
 }
 
 func (s *VersionService) GetLatestFileVersion(ctx context.Context, supporterToken string) (string, error) {
@@ -33,4 +35,8 @@ func (s *VersionService) GetFileByVersion(ctx context.Context, version, supporte
 	default:
 		return s.bucket.FindBy(ctx, version)
 	}
+}
+
+func (s *VersionService) GetPatchNotes(ctx context.Context) []patches.Patch {
+	return s.patchRepository.FindAll(ctx)
 }
