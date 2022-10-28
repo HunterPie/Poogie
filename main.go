@@ -39,22 +39,22 @@ func groupByVersions(services []server.IRegisterableService) map[int][]server.IR
 	m := make(map[int][]server.IRegisterableService, 0)
 
 	for _, svc := range services {
-		version := svc.GetVersion()
+		svcVersion := svc.GetVersion()
 
-		_, ok := m[version]
+		_, ok := m[svcVersion]
 
 		if !ok {
-			m[version] = make([]server.IRegisterableService, 0)
+			m[svcVersion] = make([]server.IRegisterableService, 0)
 		}
 
-		m[version] = append(m[version], svc)
+		m[svcVersion] = append(m[svcVersion], svc)
 	}
 
 	return m
 }
 
 func main() {
-	godotenv.Load()
+	_ = godotenv.Load()
 	_ = envconfig.Process("POOGIE", &apiConfig)
 
 	log.NewLogger(apiConfig.NewRelicLicenseKey)

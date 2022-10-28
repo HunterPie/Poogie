@@ -9,7 +9,7 @@ import (
 
 func TimeoutMiddleware(timeoutFunc gin.HandlerFunc) gin.HandlerFunc {
 	return timeout.New(
-		timeout.WithTimeout(60*time.Second),
+		timeout.WithTimeout(5*time.Minute),
 		timeout.WithHandler(func(ctx *gin.Context) {
 			ctx.Next()
 		}),
