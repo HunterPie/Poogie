@@ -46,7 +46,7 @@ func (b *S3Bucket) Delete(ctx context.Context, name string) {
 		Key:    aws.String(b.prefix + name + b.fileType),
 	}
 
-	b.connection.DeleteObjectWithContext(ctx, &input)
+	_, _ = b.connection.DeleteObjectWithContext(ctx, &input)
 }
 
 // DownloadToStream implements bucket.IBucket
@@ -62,6 +62,10 @@ func (b *S3Bucket) DownloadToStream(ctx context.Context, name string) (bucket.St
 
 	response, err := b.connection.GetObjectWithContext(ctx, &input)
 
+	if err != nil {
+		txn.AddProperty("error_message", err.Error())
+	}
+
 	return bucket.StreamedFile{
 		Reader: response.Body,
 		Size:   *response.ContentLength,
@@ -75,6 +79,9 @@ func (b *S3Bucket) UploadFromStream(ctx context.Context, name string, file io.Re
 	segment := txn.StartSegment("S3Bucket.UploadFromStream")
 	defer segment.End()
 
+	cacheCtx, cancel := context.WithTimeout(ctx, 1*time.Minute)
+	defer cancel()
+
 	uploader := s3manager.NewUploaderWithClient(b.connection)
 	input := s3manager.UploadInput{
 		Bucket: aws.String(b.bucket),
@@ -82,11 +89,12 @@ func (b *S3Bucket) UploadFromStream(ctx context.Context, name string, file io.Re
 		Body:   file,
 	}
 
-	_, err := uploader.UploadWithContext(ctx, &input, func(u *s3manager.Uploader) {
-		u.Concurrency = 10
+	_, err := uploader.UploadWithContext(cacheCtx, &input, func(u *s3manager.Uploader) {
+		u.Concurrency = 5
 	})
 
 	if err != nil {
+		txn.AddProperty("error_message", err.Error())
 		log.Error("failed to upload to bucket", err)
 	}
 
@@ -111,6 +119,7 @@ func (b *S3Bucket) Upload(ctx context.Context, name string, data []byte) (bool, 
 	_, err := uploader.UploadWithContext(ctx, &input)
 
 	if err != nil {
+		txn.AddProperty("error_message", err.Error())
 		log.Error("failed to upload to bucket", err)
 	}
 
@@ -123,7 +132,9 @@ func (b *S3Bucket) FindBy(ctx context.Context, name string) ([]byte, error) {
 	segment := txn.StartSegment("S3Bucket.FindBy")
 	defer segment.End()
 
+	cacheSegment := txn.StartSegment("cache.Get")
 	file, hasCachedFile := b.cache.Get(name)
+	cacheSegment.End()
 
 	if hasCachedFile {
 		return file.([]byte), nil
@@ -139,10 +150,11 @@ func (b *S3Bucket) FindBy(ctx context.Context, name string) ([]byte, error) {
 	buffer := aws.NewWriteAtBuffer([]byte{})
 
 	_, err := downloader.DownloadWithContext(ctx, buffer, query, func(d *s3manager.Downloader) {
-		d.Concurrency = 10
+		d.Concurrency = 5
 	})
 
 	if err != nil {
+		txn.AddProperty("error_message", err.Error())
 		return nil, errors.New("no file with given name was found")
 	}
 
@@ -157,7 +169,9 @@ func (b *S3Bucket) FindMostRecent(ctx context.Context) (string, error) {
 	segment := txn.StartSegment("S3Bucket.FindMostRecent")
 	defer segment.End()
 
+	cacheSegment := txn.StartSegment("cache.Get")
 	name, hasCachedName := b.cache.Get(MOST_RECENT_KEY)
+	cacheSegment.End()
 
 	if hasCachedName {
 		return name.(string), nil
