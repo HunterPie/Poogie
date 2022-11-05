@@ -23,7 +23,6 @@ func (*VersionHandler) Load(router *gin.RouterGroup, server *server.Server) erro
 	service := NewService(
 		aws.New(server.Config, "Releases/", ".zip"),
 		aws.New(server.Config, "Beta/", ".zip"),
-		server.Database.GetSupporterRepository(),
 		server.Database.GetPatchRepository(),
 	)
 

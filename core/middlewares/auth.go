@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"github.com/Haato3o/poogie/core/utils"
 	"net/http"
 
 	"github.com/Haato3o/poogie/core/auth"
@@ -11,8 +12,8 @@ import (
 )
 
 const (
-	TOKEN              = "X-Token"
-	TRANSFORMED_HEADER = "X-Transformed-User-Id"
+	TOKEN             = "X-Token"
+	TransformedHeader = "X-Transformed-User-Id"
 )
 
 type UserTransformMiddleware struct {
@@ -31,50 +32,38 @@ func NewUserTransformMiddleware(service auth.IAuthService, repository account.IA
 }
 
 func (m *UserTransformMiddleware) TokenToUserIdTransform(ctx *gin.Context) {
-	ctx.Request.Header.Del(TRANSFORMED_HEADER)
+	ctx.Request.Header.Del(TransformedHeader)
 
 	token := ctx.GetHeader(TOKEN)
-
-	if token == "" {
-		ctx.AbortWithStatusJSON(http.StatusUnauthorized, UnauthorizedResponse{
-			Error: "You must log in first",
-			Code:  common.ErrInvalidSessionToken,
-		})
-		return
-	}
-
 	isValid := m.service.IsValid(token)
+	userId := ""
 
-	if !isValid {
+	if token != "" && isValid {
+		payload, _ := m.service.Parse(token)
+
+		hashedToken := m.hashService.Hash(token)
+		IsSessionValid := m.repository.IsSessionValid(ctx, hashedToken)
+
+		if IsSessionValid {
+			userId = payload.UserId
+		}
+	}
+
+	ctx.Request.Header.Add(TransformedHeader, userId)
+
+	ctx.Next()
+}
+
+func BlockUnauthenticatedRequest(ctx *gin.Context) {
+	userId := utils.ExtractUserId(ctx)
+
+	if userId == "" {
 		ctx.AbortWithStatusJSON(http.StatusUnauthorized, UnauthorizedResponse{
 			Error: "Invalid session token",
 			Code:  common.ErrInvalidSessionToken,
 		})
 		return
 	}
-
-	user, err := m.service.Parse(token)
-
-	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusUnauthorized, UnauthorizedResponse{
-			Error: "Invalid session token",
-			Code:  common.ErrInvalidSessionToken,
-		})
-		return
-	}
-
-	hashedToken := m.hashService.Hash(token)
-	IsSessionValid := m.repository.IsSessionValid(ctx, hashedToken)
-
-	if !IsSessionValid {
-		ctx.AbortWithStatusJSON(http.StatusUnauthorized, UnauthorizedResponse{
-			Error: "Invalid session token",
-			Code:  common.ErrInvalidSessionToken,
-		})
-		return
-	}
-
-	ctx.Request.Header.Add(TRANSFORMED_HEADER, user.UserId)
 
 	ctx.Next()
 }

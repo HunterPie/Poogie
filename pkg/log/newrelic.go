@@ -16,11 +16,11 @@ var (
 )
 
 type NewRelicLogMessage struct {
-	App     string        `json:"app"`
-	Message string        `json:"message"`
-	Error   string        `json:"error,omitempty"`
-	Context []*LogContext `json:"context,omitempty"`
-	Level   string        `json:"level"`
+	App     string       `json:"app"`
+	Message string       `json:"message"`
+	Error   string       `json:"error,omitempty"`
+	Context []LogContext `json:"context,omitempty"`
+	Level   string       `json:"level"`
 }
 
 type NewRelicHeadlessLogger struct {
@@ -35,7 +35,7 @@ func NewLogger(apiKey string) {
 	Info("initialized NewRelic headless client")
 }
 
-func (l *NewRelicHeadlessLogger) Info(message string, ctx []*LogContext) {
+func (l *NewRelicHeadlessLogger) Info(message string, ctx []LogContext) {
 	l.send(NewRelicLogMessage{
 		Message: message,
 		Context: ctx,
@@ -43,7 +43,7 @@ func (l *NewRelicHeadlessLogger) Info(message string, ctx []*LogContext) {
 	})
 }
 
-func (l *NewRelicHeadlessLogger) Error(message string, err error, ctx []*LogContext) {
+func (l *NewRelicHeadlessLogger) Error(message string, err error, ctx []LogContext) {
 	l.send(NewRelicLogMessage{
 		Message: err.Error(),
 		Context: ctx,

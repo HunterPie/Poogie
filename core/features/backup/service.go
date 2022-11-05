@@ -16,15 +16,15 @@ import (
 )
 
 var (
-	ErrFailedToUploadBackup   = errors.New("failed to upload backup file")
-	ErrBackupRateLimitReached = errors.New("backup rate limit for this account has been reached")
+	ErrFailedToUploadBackup = errors.New("failed to upload backup file")
 )
 
-type BackupUploadRequest struct {
-	UserId string
-	Stream io.Reader
-	Size   int64
-	Game   backups.GameType
+type UploadRequest struct {
+	UserId      string
+	Stream      io.Reader
+	Size        int64
+	Game        backups.GameType
+	IsSupporter bool
 }
 
 type DeleteQueueMessage struct {
@@ -32,32 +32,31 @@ type DeleteQueueMessage struct {
 	UserId   string
 }
 
-type BackupService struct {
+type Service struct {
 	repository        backups.IBackupRepository
 	accountRepository account.IAccountRepository
 	bucket            bucket.IBucket
 	DeleteJobQueue    chan DeleteQueueMessage
 }
 
-func (s *BackupService) Initialize() *BackupService {
+func (s *Service) Initialize() *Service {
 	go s.listenToJobQueue()
 	return s
 }
 
-func (s *BackupService) CanUserUpload(ctx context.Context, userId string) bool {
+func (s *Service) CanUserUpload(ctx context.Context, userId string) bool {
 	userBackups := s.repository.FindAllByUserId(ctx, userId)
 	user, _ := s.accountRepository.GetById(ctx, userId)
 
 	return !(len(userBackups) > 0 && time.Since(userBackups[0].UploadedAt) < user.GetBackupRateLimit())
 }
 
-func (s *BackupService) UploadBackupFile(ctx context.Context, request BackupUploadRequest) (BackupResponse, error) {
+func (s *Service) UploadBackupFile(ctx context.Context, request UploadRequest) (BackupResponse, error) {
 	backupId := utils.NewRandomString()
 
 	_, err := s.bucket.UploadFromStream(ctx, buildUserStorageName(request.UserId, backupId), request.Stream)
 
 	userBackups := s.repository.FindAllByUserId(ctx, request.UserId)
-	user, _ := s.accountRepository.GetById(ctx, request.UserId)
 
 	if err != nil {
 		return BackupResponse{}, ErrFailedToUploadBackup
@@ -78,7 +77,7 @@ func (s *BackupService) UploadBackupFile(ctx context.Context, request BackupUplo
 
 	maxBackups := domain.MAX_BACKUPS
 
-	if user.IsSupporter {
+	if request.IsSupporter {
 		maxBackups = domain.MAX_BACKUPS_SUPPORTER
 	}
 
@@ -97,29 +96,35 @@ func (s *BackupService) UploadBackupFile(ctx context.Context, request BackupUplo
 	return ToBackupResponse(model), nil
 }
 
-func (s *BackupService) DownloadBackupFile(ctx context.Context, userId string, backupId string) (bucket.StreamedFile, error) {
+func (s *Service) DownloadBackupFile(
+	ctx context.Context,
+	userId string,
+	backupId string,
+) (bucket.StreamedFile, error) {
 	return s.bucket.DownloadToStream(ctx, buildUserStorageName(userId, backupId))
 }
 
-func (s *BackupService) FindAllBackupsForUser(ctx context.Context, userId string) UserBackupDetailsResponse {
-	user, _ := s.accountRepository.GetById(ctx, userId)
-
+func (s *Service) FindAllBackupsForUser(
+	ctx context.Context,
+	userId string,
+	isSupporter bool,
+) UserBackupDetailsResponse {
 	maxCount := domain.MAX_BACKUPS
 
-	if user.IsSupporter {
+	if isSupporter {
 		maxCount = domain.MAX_BACKUPS_SUPPORTER
 	}
 
-	backups := s.repository.FindAllByUserId(ctx, userId)
+	backupsModels := s.repository.FindAllByUserId(ctx, userId)
 
 	return UserBackupDetailsResponse{
-		Count:    len(backups),
+		Count:    len(backupsModels),
 		MaxCount: maxCount,
-		Backups:  ToBackupResponses(backups),
+		Backups:  ToBackupResponses(backupsModels),
 	}
 }
 
-func (s *BackupService) DeleteBackupFile(ctx context.Context, userId string, backupId string) bool {
+func (s *Service) DeleteBackupFile(ctx context.Context, userId string, backupId string) bool {
 	success := s.repository.DeleteById(ctx, userId, backupId)
 
 	if !success {
@@ -131,7 +136,7 @@ func (s *BackupService) DeleteBackupFile(ctx context.Context, userId string, bac
 	return true
 }
 
-func (s *BackupService) listenToJobQueue() {
+func (s *Service) listenToJobQueue() {
 	for message := range s.DeleteJobQueue {
 		ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
 

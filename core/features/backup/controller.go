@@ -8,13 +8,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const SAVE_SIZE_LIMIT int64 = 120_000_000
+const SaveSizeLimit int64 = 120_000_000
 
-type BackupController struct {
-	*BackupService
+type Controller struct {
+	*Service
 }
 
-func (c *BackupController) DeleteBackupFileHandler(ctx *gin.Context) {
+func (c *Controller) DeleteBackupFileHandler(ctx *gin.Context) {
 	userId := utils.ExtractUserId(ctx)
 	backupId := ctx.Param("backupId")
 
@@ -35,15 +35,16 @@ func (c *BackupController) DeleteBackupFileHandler(ctx *gin.Context) {
 	})
 }
 
-func (c *BackupController) GetAllBackupsHandler(ctx *gin.Context) {
+func (c *Controller) GetAllBackupsHandler(ctx *gin.Context) {
 	userId := utils.ExtractUserId(ctx)
+	isSupporter := utils.ExtractIsSupporter(ctx)
 
-	response := c.FindAllBackupsForUser(ctx, userId)
+	response := c.FindAllBackupsForUser(ctx, userId, isSupporter)
 
 	http.Ok(ctx, response)
 }
 
-func (c *BackupController) UploadBackupHandler(ctx *gin.Context) {
+func (c *Controller) UploadBackupHandler(ctx *gin.Context) {
 	gameId := ctx.Param("gameId")
 
 	if gameId == "" || !backups.IsGameType(gameId) {
@@ -60,7 +61,7 @@ func (c *BackupController) UploadBackupHandler(ctx *gin.Context) {
 
 	file, headers, err := ctx.Request.FormFile("file")
 
-	if headers.Size > SAVE_SIZE_LIMIT {
+	if headers.Size > SaveSizeLimit {
 		http.TooLarge(ctx, common.ErrBackupSizeTooLarge)
 		return
 	}
@@ -70,11 +71,13 @@ func (c *BackupController) UploadBackupHandler(ctx *gin.Context) {
 		return
 	}
 
-	response, err := c.UploadBackupFile(ctx, BackupUploadRequest{
-		UserId: userId,
-		Stream: file,
-		Size:   headers.Size,
-		Game:   backups.GameType(gameId),
+	isSupporter := utils.ExtractIsSupporter(ctx)
+	response, err := c.UploadBackupFile(ctx, UploadRequest{
+		UserId:      userId,
+		Stream:      file,
+		Size:        headers.Size,
+		Game:        backups.GameType(gameId),
+		IsSupporter: isSupporter,
 	})
 
 	if err != nil {
@@ -85,7 +88,7 @@ func (c *BackupController) UploadBackupHandler(ctx *gin.Context) {
 	http.Ok(ctx, response)
 }
 
-func (c *BackupController) DownloadBackupHandler(ctx *gin.Context) {
+func (c *Controller) DownloadBackupHandler(ctx *gin.Context) {
 	backupId := ctx.Param("backupId")
 	userId := utils.ExtractUserId(ctx)
 
@@ -104,7 +107,7 @@ func (c *BackupController) DownloadBackupHandler(ctx *gin.Context) {
 	ctx.DataFromReader(200, backup.Size, backup.Type, backup.Reader, nil)
 }
 
-func (c *BackupController) CanUserUploadHandler(ctx *gin.Context) {
+func (c *Controller) CanUserUploadHandler(ctx *gin.Context) {
 	userId := utils.ExtractUserId(ctx)
 
 	canUpload := c.CanUserUpload(ctx, userId)

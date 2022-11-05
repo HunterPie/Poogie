@@ -14,8 +14,8 @@ type VersionController struct {
 }
 
 func (c *VersionController) GetLatestVersion(ctx *gin.Context) {
-	supporterToken := utils.ExtractSupporterToken(ctx)
-	latest, err := c.service.GetLatestFileVersion(ctx, supporterToken)
+	isSupporter := utils.ExtractIsSupporter(ctx)
+	latest, err := c.service.GetLatestFileVersion(ctx, isSupporter)
 
 	if err != nil {
 		http.InternalServerError(ctx)
@@ -28,15 +28,15 @@ func (c *VersionController) GetLatestVersion(ctx *gin.Context) {
 }
 
 func (c *VersionController) GetLatestBinary(ctx *gin.Context) {
-	supporterToken := utils.ExtractSupporterToken(ctx)
-	latest, err := c.service.GetLatestFileVersion(ctx, supporterToken)
+	isSupporter := utils.ExtractIsSupporter(ctx)
+	latest, err := c.service.GetLatestFileVersion(ctx, isSupporter)
 
 	if err != nil {
 		http.InternalServerError(ctx)
 		return
 	}
 
-	latestBinary, err := c.service.GetFileByVersion(ctx, latest, supporterToken)
+	latestBinary, err := c.service.GetFileByVersion(ctx, latest, isSupporter)
 
 	if err != nil {
 		http.InternalServerError(ctx)
@@ -49,10 +49,10 @@ func (c *VersionController) GetLatestBinary(ctx *gin.Context) {
 }
 
 func (c *VersionController) GetBinaryByVersion(ctx *gin.Context) {
-	supporterToken := utils.ExtractSupporterToken(ctx)
+	isSupporter := utils.ExtractIsSupporter(ctx)
 	version := ctx.Param("version")
 
-	binary, err := c.service.GetFileByVersion(ctx, version, supporterToken)
+	binary, err := c.service.GetFileByVersion(ctx, version, isSupporter)
 
 	if err != nil {
 		http.ElementNotFound(ctx)
