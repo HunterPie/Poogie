@@ -35,6 +35,20 @@ func (m *MockISupporterRepository) EXPECT() *MockISupporterRepositoryMockRecorde
 	return m.recorder
 }
 
+// AssociateToUser mocks base method.
+func (m *MockISupporterRepository) AssociateToUser(ctx context.Context, email, userId string) supporter.SupporterModel {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AssociateToUser", ctx, email, userId)
+	ret0, _ := ret[0].(supporter.SupporterModel)
+	return ret0
+}
+
+// AssociateToUser indicates an expected call of AssociateToUser.
+func (mr *MockISupporterRepositoryMockRecorder) AssociateToUser(ctx, email, userId interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssociateToUser", reflect.TypeOf((*MockISupporterRepository)(nil).AssociateToUser), ctx, email, userId)
+}
+
 // ExistsSupporter mocks base method.
 func (m *MockISupporterRepository) ExistsSupporter(ctx context.Context, email string) bool {
 	m.ctrl.T.Helper()
@@ -75,6 +89,20 @@ func (m *MockISupporterRepository) FindBy(ctx context.Context, email string) sup
 func (mr *MockISupporterRepositoryMockRecorder) FindBy(ctx, email interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindBy", reflect.TypeOf((*MockISupporterRepository)(nil).FindBy), ctx, email)
+}
+
+// FindByAssociation mocks base method.
+func (m *MockISupporterRepository) FindByAssociation(ctx context.Context, userId string) supporter.SupporterModel {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindByAssociation", ctx, userId)
+	ret0, _ := ret[0].(supporter.SupporterModel)
+	return ret0
+}
+
+// FindByAssociation indicates an expected call of FindByAssociation.
+func (mr *MockISupporterRepositoryMockRecorder) FindByAssociation(ctx, userId interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByAssociation", reflect.TypeOf((*MockISupporterRepository)(nil).FindByAssociation), ctx, userId)
 }
 
 // Insert mocks base method.

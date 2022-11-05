@@ -20,15 +20,15 @@ func (*VersionHandler) GetVersion() int {
 
 // Load implements server.IRegisterableService
 func (*VersionHandler) Load(router *gin.RouterGroup, server *server.Server) error {
-	service := VersionService{
-		bucket:              aws.New(server.Config, "Releases/", ".zip"),
-		alphaBucket:         aws.New(server.Config, "Beta/", ".zip"),
-		supporterRepository: server.Database.GetSupporterRepository(),
-		patchRepository:     server.Database.GetPatchRepository(),
-	}
+	service := NewService(
+		aws.New(server.Config, "Releases/", ".zip"),
+		aws.New(server.Config, "Beta/", ".zip"),
+		server.Database.GetSupporterRepository(),
+		server.Database.GetPatchRepository(),
+	)
 
 	controller := VersionController{
-		service: &service,
+		service: service,
 	}
 
 	router.GET("/version", controller.GetLatestVersion)

@@ -40,3 +40,17 @@ func (s *VersionService) GetFileByVersion(ctx context.Context, version, supporte
 func (s *VersionService) GetPatchNotes(ctx context.Context) []patches.Patch {
 	return s.patchRepository.FindAll(ctx)
 }
+
+func NewService(
+	bucket bucket.IBucket,
+	alphaBucket bucket.IBucket,
+	supporterRepository supporter.ISupporterRepository,
+	patchRepository patches.IPatchRepository,
+) *VersionService {
+	return &VersionService{
+		bucket:              bucket,
+		alphaBucket:         alphaBucket,
+		supporterRepository: supporterRepository,
+		patchRepository:     patchRepository,
+	}
+}

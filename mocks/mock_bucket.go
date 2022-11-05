@@ -5,8 +5,11 @@
 package mocks
 
 import (
+	context "context"
+	io "io"
 	reflect "reflect"
 
+	bucket "github.com/Haato3o/poogie/core/persistence/bucket"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -33,32 +36,89 @@ func (m *MockIBucket) EXPECT() *MockIBucketMockRecorder {
 	return m.recorder
 }
 
-// FindBy mocks base method.
-func (m *MockIBucket) FindBy(name string) ([]byte, error) {
+// Delete mocks base method.
+func (m *MockIBucket) Delete(ctx context.Context, name string) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindBy", name)
+	m.ctrl.Call(m, "Delete", ctx, name)
+}
+
+// Delete indicates an expected call of Delete.
+func (mr *MockIBucketMockRecorder) Delete(ctx, name interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockIBucket)(nil).Delete), ctx, name)
+}
+
+// DownloadToStream mocks base method.
+func (m *MockIBucket) DownloadToStream(ctx context.Context, name string) (bucket.StreamedFile, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DownloadToStream", ctx, name)
+	ret0, _ := ret[0].(bucket.StreamedFile)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DownloadToStream indicates an expected call of DownloadToStream.
+func (mr *MockIBucketMockRecorder) DownloadToStream(ctx, name interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DownloadToStream", reflect.TypeOf((*MockIBucket)(nil).DownloadToStream), ctx, name)
+}
+
+// FindBy mocks base method.
+func (m *MockIBucket) FindBy(ctx context.Context, name string) ([]byte, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindBy", ctx, name)
 	ret0, _ := ret[0].([]byte)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // FindBy indicates an expected call of FindBy.
-func (mr *MockIBucketMockRecorder) FindBy(name interface{}) *gomock.Call {
+func (mr *MockIBucketMockRecorder) FindBy(ctx, name interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindBy", reflect.TypeOf((*MockIBucket)(nil).FindBy), name)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindBy", reflect.TypeOf((*MockIBucket)(nil).FindBy), ctx, name)
 }
 
 // FindMostRecent mocks base method.
-func (m *MockIBucket) FindMostRecent() (string, error) {
+func (m *MockIBucket) FindMostRecent(ctx context.Context) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindMostRecent")
+	ret := m.ctrl.Call(m, "FindMostRecent", ctx)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // FindMostRecent indicates an expected call of FindMostRecent.
-func (mr *MockIBucketMockRecorder) FindMostRecent() *gomock.Call {
+func (mr *MockIBucketMockRecorder) FindMostRecent(ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindMostRecent", reflect.TypeOf((*MockIBucket)(nil).FindMostRecent))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindMostRecent", reflect.TypeOf((*MockIBucket)(nil).FindMostRecent), ctx)
+}
+
+// Upload mocks base method.
+func (m *MockIBucket) Upload(ctx context.Context, name string, data []byte) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Upload", ctx, name, data)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Upload indicates an expected call of Upload.
+func (mr *MockIBucketMockRecorder) Upload(ctx, name, data interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Upload", reflect.TypeOf((*MockIBucket)(nil).Upload), ctx, name, data)
+}
+
+// UploadFromStream mocks base method.
+func (m *MockIBucket) UploadFromStream(ctx context.Context, name string, file io.Reader) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UploadFromStream", ctx, name, file)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UploadFromStream indicates an expected call of UploadFromStream.
+func (mr *MockIBucketMockRecorder) UploadFromStream(ctx, name, file interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadFromStream", reflect.TypeOf((*MockIBucket)(nil).UploadFromStream), ctx, name, file)
 }
