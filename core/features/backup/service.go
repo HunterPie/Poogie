@@ -133,12 +133,14 @@ func (s *BackupService) DeleteBackupFile(ctx context.Context, userId string, bac
 
 func (s *BackupService) listenToJobQueue() {
 	for message := range s.DeleteJobQueue {
-		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
 
 		s.repository.DeleteById(ctx, message.UserId, message.BackupId)
 		s.bucket.Delete(ctx, buildUserStorageName(message.UserId, message.BackupId))
 
 		cancel()
+
+		log.Info("deleted backup: " + buildUserStorageName(message.UserId, message.BackupId))
 	}
 }
 
