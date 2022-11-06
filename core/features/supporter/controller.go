@@ -64,23 +64,10 @@ func (c *SupporterController) HandleSupporterWebhook(ctx *gin.Context) {
 }
 
 func (c *SupporterController) HandleVerifySupporter(ctx *gin.Context) {
-	var supporterHeader SupporterHeaderModel
 
-	if !utils.DeserializeHeaders(ctx, &supporterHeader, func(header *SupporterHeaderModel) bool {
-		return header.ClientId != ""
-	}) {
-		http.BadRequest(ctx, common.ErrGeneric)
-		return
-	}
+	isSupporter := utils.ExtractIsSupporter(ctx)
 
-	if supporterHeader.SupporterToken == "" {
-		http.Ok(ctx, SupporterValidResponse{false})
-		return
-	}
-
-	exists := c.service.ExistsSupporterByToken(ctx, supporterHeader.SupporterToken)
-
-	http.Ok(ctx, SupporterValidResponse{exists})
+	http.Ok(ctx, SupporterValidResponse{isSupporter})
 }
 
 func (c *SupporterController) handleSupporterWebhookByType(ctx context.Context, typ string, webhook services.PatreonWebhookModel) (supporter.SupporterModel, error) {
