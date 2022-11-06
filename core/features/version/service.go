@@ -5,20 +5,16 @@ import (
 
 	"github.com/Haato3o/poogie/core/persistence/bucket"
 	"github.com/Haato3o/poogie/core/persistence/patches"
-	"github.com/Haato3o/poogie/core/persistence/supporter"
 )
 
 type VersionService struct {
-	bucket              bucket.IBucket
-	alphaBucket         bucket.IBucket
-	supporterRepository supporter.ISupporterRepository
-	patchRepository     patches.IPatchRepository
+	bucket          bucket.IBucket
+	alphaBucket     bucket.IBucket
+	patchRepository patches.IPatchRepository
 }
 
-func (s *VersionService) GetLatestFileVersion(ctx context.Context, supporterToken string) (string, error) {
-	isValidToken := s.supporterRepository.ExistsToken(ctx, supporterToken)
-
-	switch isValidToken {
+func (s *VersionService) GetLatestFileVersion(ctx context.Context, isSupporter bool) (string, error) {
+	switch isSupporter {
 	case true:
 		return s.alphaBucket.FindMostRecent(ctx)
 	default:
@@ -26,10 +22,8 @@ func (s *VersionService) GetLatestFileVersion(ctx context.Context, supporterToke
 	}
 }
 
-func (s *VersionService) GetFileByVersion(ctx context.Context, version, supporterToken string) ([]byte, error) {
-	isValidToken := s.supporterRepository.ExistsToken(ctx, supporterToken)
-
-	switch isValidToken {
+func (s *VersionService) GetFileByVersion(ctx context.Context, version string, isSupporter bool) ([]byte, error) {
+	switch isSupporter {
 	case true:
 		return s.alphaBucket.FindBy(ctx, version)
 	default:
@@ -44,13 +38,11 @@ func (s *VersionService) GetPatchNotes(ctx context.Context) []patches.Patch {
 func NewService(
 	bucket bucket.IBucket,
 	alphaBucket bucket.IBucket,
-	supporterRepository supporter.ISupporterRepository,
 	patchRepository patches.IPatchRepository,
 ) *VersionService {
 	return &VersionService{
-		bucket:              bucket,
-		alphaBucket:         alphaBucket,
-		supporterRepository: supporterRepository,
-		patchRepository:     patchRepository,
+		bucket:          bucket,
+		alphaBucket:     alphaBucket,
+		patchRepository: patchRepository,
 	}
 }

@@ -4,7 +4,6 @@ import (
 	"github.com/Haato3o/poogie/core/middlewares"
 	"github.com/Haato3o/poogie/pkg/aws"
 	"github.com/Haato3o/poogie/pkg/crypto"
-	"github.com/Haato3o/poogie/pkg/jwt"
 	"github.com/Haato3o/poogie/pkg/server"
 	"github.com/Haato3o/poogie/pkg/smtp"
 	"github.com/gin-gonic/gin"
@@ -46,15 +45,7 @@ func (*AccountHandler) Load(router *gin.RouterGroup, server *server.Server) erro
 
 	userRouter := router.Group("/user")
 
-	authMiddleware := middlewares.NewUserTransformMiddleware(
-		jwt.New(server.Config.JwtKey),
-		server.Database.GetSessionRepository(),
-		crypto.NewHashService(
-			server.Config.HashSalt,
-		),
-	)
-
-	userRouter.Use(authMiddleware.TokenToUserIdTransform)
+	userRouter.Use(middlewares.BlockUnauthenticatedRequest)
 
 	userRouter.GET("/me", controller.GetMyUserHandler)
 	userRouter.GET("/:userId", controller.GetUserHandler)

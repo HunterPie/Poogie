@@ -2,15 +2,15 @@ package middlewares
 
 import (
 	"github.com/Haato3o/poogie/core/tracing"
+	"github.com/Haato3o/poogie/core/utils"
 	"github.com/gin-gonic/gin"
 )
 
 const (
-	CLIENT_ID        = "X-Client-Id"
-	APP_VERSION      = "X-App-Version"
-	SUPPORTER        = "X-Supporter-Token"
-	HUNTERPIE_CLIENT = "X-HunterPie-Client"
-	CONNECTING_IP    = "Do-Connecting-Ip"
+	ClientId        = "X-Client-Id"
+	AppVersion      = "X-App-Version"
+	HunterPieClient = "X-HunterPie-Client"
+	ConnectingIp    = "Do-Connecting-Ip"
 )
 
 func TransactionMiddleware(ctx *gin.Context) {
@@ -20,10 +20,11 @@ func TransactionMiddleware(ctx *gin.Context) {
 		return
 	}
 
-	txn.AddProperty("client-id", ctx.Request.Header.Get(CLIENT_ID))
-	txn.AddProperty("app-version", ctx.Request.Header.Get(APP_VERSION))
-	txn.AddProperty("client-type", ctx.Request.Header.Get(HUNTERPIE_CLIENT))
-	txn.AddProperty("supporter", ctx.Request.Header.Get(SUPPORTER) != "")
+	txn.AddProperty("client-id", ctx.Request.Header.Get(ClientId))
+	txn.AddProperty("app-version", ctx.Request.Header.Get(AppVersion))
+	txn.AddProperty("client-type", ctx.Request.Header.Get(HunterPieClient))
+	txn.AddProperty("supporter", utils.ExtractIsSupporter(ctx))
 	txn.AddProperty("user-agent", ctx.Request.UserAgent())
-	txn.AddProperty("client-ip", ctx.Request.Header.Get(CONNECTING_IP))
+	txn.AddProperty("client-ip", ctx.Request.Header.Get(ConnectingIp))
+	txn.AddProperty("user_id", utils.ExtractUserId(ctx))
 }

@@ -2,6 +2,7 @@ package utils
 
 import (
 	"github.com/gin-gonic/gin"
+	"strconv"
 )
 
 func ExtractSupporterToken(ctx *gin.Context) string {
@@ -14,6 +15,16 @@ func ExtractClientId(ctx *gin.Context) string {
 
 func ExtractUserId(ctx *gin.Context) string {
 	return ctx.GetHeader("X-Transformed-User-Id")
+}
+
+func ExtractIsSupporter(ctx *gin.Context) bool {
+	ok, err := strconv.ParseBool(ctx.GetHeader("X-Transformed-Is-Supporter"))
+
+	if err != nil {
+		return false
+	}
+
+	return ok
 }
 
 func DeserializeHeaders[T any](ctx *gin.Context, header *T, validators ...func(*T) bool) bool {

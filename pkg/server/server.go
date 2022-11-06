@@ -2,6 +2,8 @@ package server
 
 import (
 	"fmt"
+	"github.com/Haato3o/poogie/pkg/crypto"
+	"github.com/Haato3o/poogie/pkg/jwt"
 
 	"github.com/Haato3o/poogie/core/config"
 	"github.com/Haato3o/poogie/core/middlewares"
@@ -45,22 +47,35 @@ func (s *Server) Stop() {
 }
 
 func (s *Server) Load(services map[int][]IRegisterableService) error {
+	userIdTransform := middlewares.NewUserTransformMiddleware(
+		jwt.New(s.Config.JwtKey),
+		s.Database.GetSessionRepository(),
+		crypto.NewHashService(
+			s.Config.HashSalt,
+		),
+	)
+	supporterTransform := middlewares.NewSupporterTransformMiddleware(s.Database)
+
 	for version, servicesList := range services {
-		var group string = ""
+		group := ""
 		if version > NO_VERSION {
 			group = fmt.Sprintf("v%d", version)
 		}
 
 		router := s.HttpServer.Router.Group(group)
 
-		// Setup middlewares here
-		router.Use(middlewares.TransactionMiddleware)
+		if version > NO_VERSION {
+			router.Use(userIdTransform.TokenToUserIdTransform)
+			router.Use(supporterTransform.TransformSupporterToken)
+		}
+
 		router.Use(middlewares.LogRequest)
+		router.Use(middlewares.TransactionMiddleware)
 
 		for _, service := range servicesList {
 			err := service.Load(router, s)
 
-			log.Info(fmt.Sprintf("Registering handler %s:%d", service.GetName(), service.GetVersion()))
+			log.Info(fmt.Sprintf("Registering handler %s:%s", service.GetName(), group))
 
 			if err != nil {
 				return err
