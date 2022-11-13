@@ -18,4 +18,5 @@ type IBucket interface {
 	UploadFromStream(ctx context.Context, name string, file io.Reader) (bool, error)
 	DownloadToStream(ctx context.Context, name string) (StreamedFile, error)
 	Delete(ctx context.Context, name string)
+	FindAll(ctx context.Context) []string
 }

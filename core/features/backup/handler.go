@@ -31,13 +31,16 @@ func (*Handler) Load(router *gin.RouterGroup, server *server.Server) error {
 		Service: service,
 	}
 
-	router.Use(middlewares.BlockUnauthenticatedRequest)
+	backupRouter := router.Group("/backup")
 
-	router.GET("/backup/upload", controller.CanUserUploadHandler)
-	router.POST("/backup/upload/:gameId", controller.UploadBackupHandler)
-	router.GET("/backup/:backupId", controller.DownloadBackupHandler)
-	router.GET("/backup", controller.GetAllBackupsHandler)
-	router.DELETE("/backup/:backupId", controller.DeleteBackupFileHandler)
+	backupRouter.Use(middlewares.BlockUnauthenticatedRequest)
+	{
+		backupRouter.GET("/backup/upload", controller.CanUserUploadHandler)
+		backupRouter.POST("/backup/upload/:gameId", controller.UploadBackupHandler)
+		backupRouter.GET("/backup", controller.GetAllBackupsHandler)
+		backupRouter.GET("/backup/:backupId", controller.DownloadBackupHandler)
+		backupRouter.DELETE("/backup/:backupId", controller.DeleteBackupFileHandler)
+	}
 
 	return nil
 }
