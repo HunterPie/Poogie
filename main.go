@@ -79,7 +79,7 @@ func main() {
 
 	log.Info(fmt.Sprintf("Starting up server at %s. Version %s", apiConfig.HttpAddress, metadata.Version))
 
-	//webhookService.SendEmbed(config.DeployEmbed)
+	webhookService.SendEmbed(config.DeployEmbed)
 
 	instance.Start()
 
