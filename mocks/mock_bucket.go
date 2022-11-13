@@ -63,6 +63,20 @@ func (mr *MockIBucketMockRecorder) DownloadToStream(ctx, name interface{}) *gomo
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DownloadToStream", reflect.TypeOf((*MockIBucket)(nil).DownloadToStream), ctx, name)
 }
 
+// FindAll mocks base method.
+func (m *MockIBucket) FindAll(ctx context.Context) []string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindAll", ctx)
+	ret0, _ := ret[0].([]string)
+	return ret0
+}
+
+// FindAll indicates an expected call of FindAll.
+func (mr *MockIBucketMockRecorder) FindAll(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAll", reflect.TypeOf((*MockIBucket)(nil).FindAll), ctx)
+}
+
 // FindBy mocks base method.
 func (m *MockIBucket) FindBy(ctx context.Context, name string) ([]byte, error) {
 	m.ctrl.T.Helper()
