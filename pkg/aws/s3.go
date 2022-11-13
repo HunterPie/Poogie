@@ -35,6 +35,32 @@ type S3Bucket struct {
 	fileType   string
 }
 
+func (b *S3Bucket) FindAll(ctx context.Context) []string {
+	txn := tracing.FromContext(ctx)
+	segment := txn.StartSegment("S3Bucket.FindAll")
+	defer segment.End()
+
+	input := &s3.ListObjectsInput{
+		Bucket: aws.String(b.bucket),
+		Prefix: aws.String(b.prefix),
+	}
+
+	resp, err := b.connection.ListObjectsWithContext(ctx, input)
+
+	if err != nil {
+		txn.AddProperty("error_message", err.Error())
+		return []string{}
+	}
+
+	files := make([]string, 0)
+
+	for _, file := range resp.Contents {
+		files = append(files, *file.Key)
+	}
+
+	return files
+}
+
 // Delete implements bucket.IBucket
 func (b *S3Bucket) Delete(ctx context.Context, name string) {
 	txn := tracing.FromContext(ctx)

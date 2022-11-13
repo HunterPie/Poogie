@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/Haato3o/poogie/core/features/localization"
 
 	"github.com/Haato3o/poogie/core/config"
 	"github.com/Haato3o/poogie/core/features/account"
@@ -32,6 +33,7 @@ func getServices() []server.IRegisterableService {
 		account.New(),
 		notifications.New(),
 		backup.New(),
+		localization.New(),
 	}
 }
 
@@ -77,7 +79,7 @@ func main() {
 
 	log.Info(fmt.Sprintf("Starting up server at %s. Version %s", apiConfig.HttpAddress, metadata.Version))
 
-	webhookService.SendEmbed(config.DeployEmbed)
+	//webhookService.SendEmbed(config.DeployEmbed)
 
 	instance.Start()
 

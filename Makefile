@@ -7,7 +7,8 @@ all: build
 install: go-get
 
 run:
-	go run main.go
+	go build && \
+	./Poogie
 
 build:
 	go mod tidy && \
