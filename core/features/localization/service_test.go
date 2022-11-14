@@ -88,7 +88,7 @@ func TestService_ListAvailableLocalizations(t *testing.T) {
 				Times(1)
 
 			hashService.EXPECT().
-				Hash(testCase.Content).
+				Checksum(testCase.Content).
 				Return(testCase.Hash).
 				Times(1)
 		}
@@ -126,7 +126,7 @@ func TestService_ListAvailableLocalizations(t *testing.T) {
 			Times(0)
 
 		hashService.EXPECT().
-			Hash(gomock.Any()).
+			Checksum(gomock.Any()).
 			Times(0)
 
 		cache.EXPECT().

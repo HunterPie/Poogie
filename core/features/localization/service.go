@@ -30,7 +30,7 @@ func (s *Service) ListAvailableLocalizations(ctx context.Context) map[string]str
 
 		data, _ := s.bucket.FindBy(ctx, filteredFileName)
 
-		checksum := s.hashService.Hash(string(data))
+		checksum := s.hashService.Checksum(string(data))
 
 		localizations[value] = checksum
 	}

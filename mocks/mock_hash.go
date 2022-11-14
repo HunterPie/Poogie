@@ -33,6 +33,20 @@ func (m *MockIHashService) EXPECT() *MockIHashServiceMockRecorder {
 	return m.recorder
 }
 
+// Checksum mocks base method.
+func (m *MockIHashService) Checksum(content string) string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Checksum", content)
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// Checksum indicates an expected call of Checksum.
+func (mr *MockIHashServiceMockRecorder) Checksum(content interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Checksum", reflect.TypeOf((*MockIHashService)(nil).Checksum), content)
+}
+
 // Hash mocks base method.
 func (m *MockIHashService) Hash(content string) string {
 	m.ctrl.T.Helper()
