@@ -35,11 +35,11 @@ func (*Handler) Load(router *gin.RouterGroup, server *server.Server) error {
 
 	backupRouter.Use(middlewares.BlockUnauthenticatedRequest)
 	{
-		backupRouter.GET("/backup/upload", controller.CanUserUploadHandler)
-		backupRouter.POST("/backup/upload/:gameId", controller.UploadBackupHandler)
-		backupRouter.GET("/backup", controller.GetAllBackupsHandler)
-		backupRouter.GET("/backup/:backupId", controller.DownloadBackupHandler)
-		backupRouter.DELETE("/backup/:backupId", controller.DeleteBackupFileHandler)
+		backupRouter.GET("/upload", controller.CanUserUploadHandler)
+		backupRouter.POST("/upload/:gameId", controller.UploadBackupHandler)
+		backupRouter.GET("", controller.GetAllBackupsHandler)
+		backupRouter.GET("/:backupId", controller.DownloadBackupHandler)
+		backupRouter.DELETE("/:backupId", controller.DeleteBackupFileHandler)
 	}
 
 	return nil
