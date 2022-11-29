@@ -13,6 +13,9 @@ ClientId: %s
 Version: %s
 Game Build: %s
 Exception: %s
+Total Ram: %d
+Ram used: %d
+Windows version: %s
 StackTrace: %s
 `
 
@@ -26,6 +29,9 @@ func (s *ReportService) SendCrashReport(ctx context.Context, report CrashReportR
 		report.Version,
 		report.GameBuild,
 		report.Exception,
+		report.Context.RamTotal,
+		report.Context.RamUsed,
+		report.Context.WindowsVersion,
 		unescapeString(report.StackTrace),
 	)
 
