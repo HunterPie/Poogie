@@ -24,6 +24,11 @@ type ReportService struct {
 }
 
 func (s *ReportService) SendCrashReport(ctx context.Context, report CrashReportRequest, clientId string) {
+	// TODO: Remove this later
+	if strings.Contains(report.StackTrace, "set_ShutdownMode") {
+		return
+	}
+
 	reportFormatted := fmt.Sprintf(CRASH_REPORT_TEMPLATE,
 		clientId,
 		report.Version,
