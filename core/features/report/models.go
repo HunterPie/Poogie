@@ -7,10 +7,11 @@ type CrashReportContext struct {
 }
 
 type CrashReportRequest struct {
-	Version    string             `json:"version" binding:"required"`
-	GameBuild  string             `json:"game_build" binding:"required"`
-	Exception  string             `json:"exception" binding:"required"`
-	StackTrace string             `json:"stacktrace" binding:"required"`
+	Version    string             `json:"version"`
+	GameBuild  string             `json:"game_build"`
+	Exception  string             `json:"exception"`
+	StackTrace string             `json:"stacktrace"`
+	IsUiError  bool               `json:"is_ui_error"`
 	Context    CrashReportContext `json:"context"`
 }
 

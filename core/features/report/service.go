@@ -3,6 +3,7 @@ package report
 import (
 	"context"
 	"fmt"
+	"github.com/Haato3o/poogie/core/tracing"
 	"strings"
 
 	"github.com/Haato3o/poogie/core/services"
@@ -24,6 +25,10 @@ type ReportService struct {
 }
 
 func (s *ReportService) SendCrashReport(ctx context.Context, report CrashReportRequest, clientId string) {
+	txn := tracing.FromContext(ctx)
+
+	txn.AddProperty("exception_code", report.Exception)
+
 	// TODO: Remove this later
 	if strings.Contains(report.StackTrace, "set_ShutdownMode") {
 		return
