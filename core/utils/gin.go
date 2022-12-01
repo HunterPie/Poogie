@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"github.com/Haato3o/poogie/core/tracing"
 	"github.com/gin-gonic/gin"
 	"strconv"
 )
@@ -42,6 +43,9 @@ func DeserializeHeaders[T any](ctx *gin.Context, header *T, validators ...func(*
 
 func DeserializeBody[T any](ctx *gin.Context, body *T, validators ...func(*T) (bool, bool)) (bool, bool) {
 	err := ctx.BindJSON(body)
+
+	txn := tracing.FromContext(ctx)
+	txn.AddProperty("error_message", err)
 
 	if err != nil {
 		return false, false

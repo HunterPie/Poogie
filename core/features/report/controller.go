@@ -13,7 +13,13 @@ type ReportController struct {
 func (c *ReportController) SendCrashReportHandler(ctx *gin.Context) {
 	var crash CrashReportRequest
 
-	utils.DeserializeBody(ctx, &crash)
+	ok, _ := utils.DeserializeBody(ctx, &crash)
+
+	if !ok {
+		http.BadRequest(ctx, "FAILED_TO_RECEIVE_BODY")
+		return
+	}
+
 	clientId := utils.ExtractClientId(ctx)
 
 	c.service.SendCrashReport(ctx, crash, clientId)
