@@ -28,6 +28,7 @@ func (s *ReportService) SendCrashReport(ctx context.Context, report CrashReportR
 	txn := tracing.FromContext(ctx)
 
 	txn.AddProperty("exception_code", report.Exception)
+	txn.AddProperty("is_ui_error", report.IsUiError)
 
 	// TODO: Remove this later
 	if strings.Contains(report.StackTrace, "set_ShutdownMode") {
