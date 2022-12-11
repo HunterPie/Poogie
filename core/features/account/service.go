@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/Haato3o/poogie/core/crypto"
@@ -82,7 +83,9 @@ func (s *AccountService) CreateNewAccount(
 		return account.AccountModel{}, ErrInvalidUsername
 	}
 
-	encryptedEmail := s.cryptoService.Encrypt(data.Email)
+	caseInsensitiveEmail := strings.ToLower(data.Email)
+
+	encryptedEmail := s.cryptoService.Encrypt(caseInsensitiveEmail)
 
 	if s.repository.IsEmailTaken(ctx, encryptedEmail) {
 		return account.AccountModel{}, ErrAccountWithEmailAlreadyExists
@@ -170,7 +173,8 @@ func (s *AccountService) UpdateAvatar(ctx context.Context, userId string, avatar
 }
 
 func (s *AccountService) RequestPasswordReset(ctx context.Context, email string) (bool, error) {
-	encryptedEmail := s.cryptoService.Encrypt(email)
+	caseInsensitiveEmail := strings.ToLower(email)
+	encryptedEmail := s.cryptoService.Encrypt(caseInsensitiveEmail)
 	account, err := s.repository.GetByEmail(ctx, encryptedEmail)
 
 	if err != nil {
@@ -207,7 +211,8 @@ func (s *AccountService) RequestPasswordReset(ctx context.Context, email string)
 }
 
 func (s *AccountService) ChangePassword(ctx context.Context, email string, code string, newPassword string) (bool, error) {
-	encryptedEmail := s.cryptoService.Encrypt(email)
+	caseInsensitiveEmail := strings.ToLower(email)
+	encryptedEmail := s.cryptoService.Encrypt(caseInsensitiveEmail)
 	hashedPassword := s.hashService.Hash(newPassword)
 
 	isValid := s.resetRepository.IsTokenValid(ctx, code, email)
