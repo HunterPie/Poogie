@@ -3,6 +3,7 @@ package session
 import (
 	"context"
 	"errors"
+	"strings"
 
 	"github.com/Haato3o/poogie/core/auth"
 	"github.com/Haato3o/poogie/core/crypto"
@@ -25,7 +26,9 @@ type SessionService struct {
 
 func (s *SessionService) CreateSession(ctx context.Context, credentials LoginRequest) (string, error) {
 	hashedPassword := s.hashService.Hash(credentials.Password)
-	encryptedEmail := s.cryptoService.Encrypt(credentials.Email)
+
+	caseInsensitiveEmail := strings.ToLower(credentials.Email)
+	encryptedEmail := s.cryptoService.Encrypt(caseInsensitiveEmail)
 
 	isLoginValid := s.accountRepository.AreCredentialsValid(ctx, encryptedEmail, hashedPassword)
 
