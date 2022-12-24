@@ -1,3 +1,3 @@
 package metadata
 
-const Version string = "1.12.4"
+const Version string = "1.13.0"
