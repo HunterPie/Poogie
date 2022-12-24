@@ -12,6 +12,7 @@ import (
 	backups "github.com/Haato3o/poogie/core/persistence/backups"
 	notifications "github.com/Haato3o/poogie/core/persistence/notifications"
 	patches "github.com/Haato3o/poogie/core/persistence/patches"
+	settings "github.com/Haato3o/poogie/core/persistence/settings"
 	supporter "github.com/Haato3o/poogie/core/persistence/supporter"
 	gomock "github.com/golang/mock/gomock"
 )
@@ -93,6 +94,20 @@ func (m *MockIDatabase) GetBackupsRepository() backups.IBackupRepository {
 func (mr *MockIDatabaseMockRecorder) GetBackupsRepository() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBackupsRepository", reflect.TypeOf((*MockIDatabase)(nil).GetBackupsRepository))
+}
+
+// GetClientSettingsRepository mocks base method.
+func (m *MockIDatabase) GetClientSettingsRepository() settings.IClientSettingsRepository {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetClientSettingsRepository")
+	ret0, _ := ret[0].(settings.IClientSettingsRepository)
+	return ret0
+}
+
+// GetClientSettingsRepository indicates an expected call of GetClientSettingsRepository.
+func (mr *MockIDatabaseMockRecorder) GetClientSettingsRepository() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetClientSettingsRepository", reflect.TypeOf((*MockIDatabase)(nil).GetClientSettingsRepository))
 }
 
 // GetNotificationsRepository mocks base method.

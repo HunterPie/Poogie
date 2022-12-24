@@ -2,6 +2,7 @@ package utils
 
 import (
 	"github.com/Haato3o/poogie/core/tracing"
+	"github.com/Haato3o/poogie/pkg/log"
 	"github.com/gin-gonic/gin"
 	"strconv"
 )
@@ -45,9 +46,10 @@ func DeserializeBody[T any](ctx *gin.Context, body *T, validators ...func(*T) (b
 	err := ctx.BindJSON(body)
 
 	txn := tracing.FromContext(ctx)
-	txn.AddProperty("error_message", err)
 
 	if err != nil {
+		log.Error("failed to deserialize body", err)
+		txn.AddProperty("error_message", err)
 		return false, false
 	}
 

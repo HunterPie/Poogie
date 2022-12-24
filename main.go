@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/Haato3o/poogie/core/features/localization"
+	"github.com/Haato3o/poogie/core/features/settings"
 
 	"github.com/Haato3o/poogie/core/config"
 	"github.com/Haato3o/poogie/core/features/account"
@@ -34,6 +35,7 @@ func getServices() []server.IRegisterableService {
 		notifications.New(),
 		backup.New(),
 		localization.New(),
+		settings.New(),
 	}
 }
 
