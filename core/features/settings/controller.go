@@ -12,9 +12,9 @@ type Controller struct {
 }
 
 func (c *Controller) GetClientSettingsHandler(ctx *gin.Context) {
-	clientId := utils.ExtractClientId(ctx)
+	userId := utils.ExtractUserId(ctx)
 
-	config, err := c.s.GetSettings(ctx, clientId)
+	config, err := c.s.GetSettings(ctx, userId)
 
 	if err != nil {
 		handleException(ctx, err)
@@ -25,7 +25,7 @@ func (c *Controller) GetClientSettingsHandler(ctx *gin.Context) {
 }
 
 func (c *Controller) UpdateClientSettingsHandler(ctx *gin.Context) {
-	clientId := utils.ExtractUserId(ctx)
+	userId := utils.ExtractUserId(ctx)
 
 	var request UpdateClientSettingsRequest
 	ok, _ := utils.DeserializeBody(ctx, &request)
@@ -35,7 +35,7 @@ func (c *Controller) UpdateClientSettingsHandler(ctx *gin.Context) {
 		return
 	}
 
-	config, err := c.s.UpdateSettings(ctx, clientId, request.Configuration)
+	config, err := c.s.UpdateSettings(ctx, userId, request.Configuration)
 
 	if err != nil {
 		handleException(ctx, err)
