@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"github.com/Haato3o/poogie/core/persistence/settings"
 
 	"github.com/Haato3o/poogie/core/persistence/account"
 	"github.com/Haato3o/poogie/core/persistence/backups"
@@ -20,4 +21,5 @@ type IDatabase interface {
 	GetBackupsRepository() backups.IBackupRepository
 	GetAccountResetRepository() account.IAccountResetRepository
 	GetPatchRepository() patches.IPatchRepository
+	GetClientSettingsRepository() settings.IClientSettingsRepository
 }

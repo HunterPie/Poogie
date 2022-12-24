@@ -2,6 +2,7 @@ package mongodb
 
 import (
 	"context"
+	"github.com/Haato3o/poogie/core/persistence/settings"
 	"time"
 
 	"github.com/Haato3o/poogie/core/persistence/account"
@@ -20,6 +21,10 @@ import (
 type MongoDatabase struct {
 	*mongo.Client
 	*mongo.Database
+}
+
+func (m *MongoDatabase) GetClientSettingsRepository() settings.IClientSettingsRepository {
+	return NewClientSettingsRepository(m.Database)
 }
 
 // GetPatchRepository implements database.IDatabase
