@@ -49,7 +49,7 @@ func DeserializeBody[T any](ctx *gin.Context, body *T, validators ...func(*T) (b
 
 	if err != nil {
 		log.Error("failed to deserialize body", err)
-		txn.AddProperty("error_message", err)
+		txn.AddProperty("error_message", err.Error())
 		return false, false
 	}
 

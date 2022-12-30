@@ -18,7 +18,7 @@ func (s *NewRelicSegment) End() {
 	s.Segment.End()
 }
 
-// AddProperty implements ITracingTransaction
+// StartSegment implements ITracingTransaction
 func (t *NewRelicTransaction) StartSegment(name string) ITracingSegment {
 	segment := newrelic.Segment{
 		Name:      name,
